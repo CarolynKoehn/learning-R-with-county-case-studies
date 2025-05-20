@@ -1,0 +1,110 @@
+---
+title: "Module 2 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## `ID_counties_tot_pop_med_age.csv`
+
+These data were retrieved from the American Community Survey through the `tidycensus` package and cleaned with the following code:
+
+```{r}
+#| eval: false
+
+# import libraries
+library(tidycensus)
+library(tidyverse)
+# load API key - see tidycensus documentation for more information
+readRenviron("../.Renviron")
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+
+population <- get_acs(geography = "county",
+                      state = "ID",
+                      year = 2017,
+                      survey = "acs5",
+                      table = "B01001")
+
+population <- population %>%
+  filter(variable %in% c("B01001_001", "B01001_002", "B01001_026")) %>%
+  select(-c(GEOID, moe)) %>%
+  mutate(variable = case_match(variable,
+             "B01001_001" ~ "Total_population",
+             "B01001_002" ~ "Total_male",
+             "B01001_026" ~ "Total_female")) %>%
+  pivot_wider(names_from = variable,
+              values_from = estimate)
+
+age <- get_acs(geography = "county",
+               state = "ID",
+               year = 2017,
+               survey = "acs5",
+               variables = "B01002_001")
+
+population <- left_join(population, age[,c(2,4)]) %>%
+  rename(Median_age = estimate, County = NAME)
+
+write.csv(population, 
+          "data/ID_counties_tot_pop_med_age.csv", 
+          row.names = FALSE)  
+```
+
+## `producer_age_2017_ID.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: DEMOGRAPHICS
+- Group: PRODUCERS
+- Commodity: PRODUCERS
+- Category: AGE, AVG    
+- Data Item: PRODUCERS - AGE, AVG, MEASURED IN YEARS
+- Domain: TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 2017
+
+## `producers_persons_in_household_2017_ID.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: DEMOGRAPHICS
+- Group: PRODUCERS
+- Commodity: PRODUCERS
+- Category: PERSONS IN HOUSEHOLD    
+- Data Item: PRODUCERS - PERSONS IN HOUSEHOLD, MEASURED IN PERSONS
+- Domain: TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 2017
+
+## `cropland_pastureland_total_acres_ID_1997-2017.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: ECONOMICS
+- Group: FARMS & LAND & ASSETS
+- Commodity: 
+  - AG LAND
+  - LAND AREA
+- Category: AREA   
+- Data Item: 
+  - AG LAND, CROPLAND - ACRES
+  - AG LAND, PASTURELAND - ACRES
+  - LAND AREA, INCL NON-AG - ACRES
+- Domain: TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 2017
+
+# Teaching notes
+
+- You may need to use in-person meeting time to make sure the file pathways are working correctly. Attached is a conceptual diagram we used to review how files and file names work through the process of importing data into R. You may want to begin this module as a live coding session.
+- It is helpful to tell students that they will need to re-run all their code if they save and close their work, then come back to it later.
+- I had students add the data for their counties to a shared Google sheet so that students could compare their counties with others. You may wish to record data in a different way. If you do, you will want to find and replace mentions of the shared Google sheet throughout these modules.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
+
+![](conceptual_diagram.jpg)
