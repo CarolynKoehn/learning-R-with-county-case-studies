@@ -33,9 +33,7 @@ i=1
 
 **\textcolor{orange}{(`r i`)}** Open RStudio by double-clicking the project file you created in the last module, or, open RStudio and then open your project (see Module 1 step (7)). **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file (refer to the "Create a Quarto Document" section in Module 1).
 
-We'll be using a a simplified data set of population demographics for each county in Idaho from the American Community Survey. **\textcolor{orange}{(`r cont_count()`)}** Download `ID_counties_tot_pop_med_age.csv` from this [GitHub data folder]() into the `data` folder you created in your project.
-
-<!-- Instructors: you may use this link or specify how students should access data -->
+We'll be using a a simplified data set of population demographics for each county in Idaho from the American Community Survey. **\textcolor{orange}{(`r cont_count()`)}** Download `ID_counties_tot_pop_med_age.csv` from this [GitHub data folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/1ae0f89e0bdc3dc610d94b79ce4ae28f6e781af3/Module_2_Navigating_Data/data) into the `data` folder you created in your project.
 
 ### Accessing data in R
 
@@ -104,7 +102,7 @@ In `R`, `TRUE` will select a value and `FALSE` will not. For example, in the cod
 population[c(1:4, 6), c(TRUE, FALSE, FALSE, FALSE, TRUE)]
 ```
 
-Normally, `TRUE` and `FALSE` codes are the result of a function. We use greater than > (`>`), less than < (`<`), greater than or equal to $\geq$ (`>=`), less than or equal to $\leq$ (`<=`), and equal to = (`==`) to find the rows and columns we're interested in.
+Normally, `TRUE` and `FALSE` codes are the result of a function. We use greater than (>, `>`), less than (<, `<`), greater than or equal to ($\geq$, `>=`), less than or equal to ($\leq$, `<=`), and equal to (=, `==`) to find the rows and columns we're interested in.
 
 To get data for one county, we will use the `subset` function. Inside `subset`, you specify a condition that `R` should match, and it will only return rows of data where that condition is `TRUE`. **\textcolor{orange}{(`r cont_count()`)}** Use `subset` and `==` to get the data for your case study county from `population`.
 ```{r}
@@ -124,7 +122,7 @@ created_pop_subset <- i
 
 ### Try it with Census of Agriculture data
 
-**\textcolor{orange}{(`r cont_count()`)}** Download the file `producer_age_2017_ID.csv` from the Google Drive data folder into your `data` folder. 
+**\textcolor{orange}{(`r cont_count()`)}** Download the file `producer_age_2017_ID.csv` from the [GitHub data folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/1ae0f89e0bdc3dc610d94b79ce4ae28f6e781af3/Module_2_Navigating_Data/data) into your `data` folder. 
 
 **\textcolor{orange}{(`r cont_count()`)}** Read the data into an object in `R` and use at least two of the functions in the "Inspecting data frames" section to get some information about the data. (Note: `#` is a comment in code and is not run. I used a comment here to tell you some information about the code without breaking up my code chunk.) Remember that objects names (to the left of the `<-`) can be whatever you want, and you will use this object name in your code later.
 
@@ -140,9 +138,9 @@ colnames(________)
 summary(_______)
 ```
 
-You may notice that many of these columns have the same information in every row. This is a "dirty" dataset, and we will spend lots of time this semester learning how make data like this "clean."
+You may notice that many of these columns have the same information in every row. This is a "raw" dataset, and we will spend lots of time this semester learning how make data like this "clean."
 
-**\textcolor{orange}{(`r cont_count()`)}** Make sure to identify the column that has the county names and check the format of the county names (hint: `County == "Bear Lake County, Idaho"` in the `subset` function will not work on this data).
+**\textcolor{orange}{(`r cont_count()`)}** Identify the column that has the county names and check the format of the county names by printing the column.
 
 ```{r}
 #| eval: false
@@ -188,7 +186,7 @@ households <- read.csv("data/producers_persons_in_household_2017_ID.csv")
 head(households)[, c("County", "Data.Item", "Value")]
 ```
 
-Notice how I used `[]` with `head`, which is possible because `head` produces a new data frame. Since I knew the column names were similar to the column names from the other Census of Agriculture data, I chose to look at only a few interesting columns in `head` instead of all of them.
+Notice how you can use `[]` with `head`, which is possible because `head` produces a new data frame. Since I knew the column names were similar to the column names from the other Census of Agriculture data, I chose to look at only a few interesting columns in `head` instead of all of them.
 
 To do math with values, we can't get away with printing a subset and writing down the correct value. We need to use subsets and column names to retrieve the exact value for our calculation. We will store each value in a separate object, and then do math with the objects to find the percentage we're interested in. **\textcolor{orange}{Modify}** the code below to calculate the percentage of people in producer households for your county.
 
@@ -199,7 +197,7 @@ my_county_total_population <- my_county_population[, "Total_population"]
 print(my_county_total_population)
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Next, find the number of people in producer households for your county (Hint: refer to step `r subset_and_print_value`). This time, save the value to a new object before printing it.
+**\textcolor{orange}{(`r cont_count()`)}** Next, find the number of people in producer households for your county (Hint: refer to step `r subset_and_print_value`, but this time, save the value instead of printing it).
 ```{r}
 #| include: false
 
@@ -207,14 +205,14 @@ my_county_households <- subset(households, County == "BEAR LAKE")
 ```
 
 ```{r}
-# I made a subset of households called my_county_households here
+# First, make a subset of households called my_county_households here
 
 my_county_households_total <- my_county_households$Value
 
 print(my_county_households_total)
 ```
 
-Notice how the the number of people in producer households printed in quotation marks. `R` thinks this is a word, not a number, because there is a comma. If we try to do math now, `R` will give us an error because it doesn't know how to do math with a number and a word. **\textcolor{orange}{(`r cont_count()`)}** Try this in the Console (using your object names, if they differ from mine) and read the error message. 
+Notice how the the number of people in producer households is printed in quotation marks. `R` thinks this is a word, not a number, because there is a comma. If we try to do math now, `R` will give us an error because it doesn't know how to do math with a number and a word. **\textcolor{orange}{(`r cont_count()`)}** Try this in the Console (using your object names, if they differ from mine) and read the error message. 
 
 ```{r}
 #| error: true
@@ -222,7 +220,7 @@ Notice how the the number of people in producer households printed in quotation 
 (my_county_households_total / my_county_total_population) * 100
 ```
 
-In this message, `R` tells us that an error occurred (`Error`), where in the code it occurred (`in my_county_households_total/my_county_total_popuation`), and it's best desription of what went wrong (`non-numeric argument to binary operator`). The key information for us here is that there is a "non-numeric" object, even though we are trying to do math, which needs numbers.
+In this message, `R` tells us that an error occurred (`Error`), where in the code it occurred (`in my_county_households_total/my_county_total_popuation`), and its best description of what went wrong (`non-numeric argument to binary operator`). The key information for us here is that there is a "non-numeric" object, even though we are trying to do math, which needs numbers.
 
 To do our calculation, we need to remove the comma, and then tell `R` that this value is a number.
 
@@ -262,13 +260,17 @@ print(my_county_households_total)
 
 **\textcolor{orange}{(`r cont_count()`)}** Use the code above and `<-` to store the percentage in an object. 
 
+```{r}
+#| eval: false
+
+______ <- (_________ / __________) * 100
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Then, use the `round` function on the object from step (`r i-1`) to round the percentage to one decimal point. Use `?round` in the Console if you need help.
 
 ```{r}
 #| eval: false
-
-______ <- (_________ / __________) * 100
 
 round(______, ______ = 1)
 ```
@@ -277,7 +279,7 @@ round(______, ______ = 1)
 
 ### Try it with another Census of Agriculture dataset
 
-**\textcolor{orange}{(`r cont_count()`)}** Download the file `cropland_pastureland_total_ares_ID_1997-2017.csv` from the Google Drive data folder into your `data` folder. 
+**\textcolor{orange}{(`r cont_count()`)}** Download the file `cropland_pastureland_total_ares_ID_1997-2017.csv` from the [GitHub data folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/1ae0f89e0bdc3dc610d94b79ce4ae28f6e781af3/Module_2_Navigating_Data/data) into your `data` folder. 
 
 **\textcolor{orange}{(`r cont_count()`)}** Read the data into an object in `R` and use at least two of the functions in the inspecting data frames section to get some information about the data. The format will be similar to other data sets in this module. This dataset has information about (1) total cropland, (2) total pastureland, and (3) total land overall in each county for 1997, 2002, 2007, 2012, and 2017.
 
@@ -297,7 +299,7 @@ my_county_land <- subset(land, County == "BEAR LAKE")
 ```
 
 
-You will need to separate agricultural land and total land into separate objects to calculate the percentage. The key to separating these items is in the `Commodity` column. **\textcolor{orange}{(`r cont_count()`)}** Use the `Commodity` column from your subset created in step `r i-1`as the input to the `unique` function to see the unique values in that column.
+You will need to separate agricultural land and total land into separate objects to calculate the percentage. The key to separating these items is in the `Commodity` column. **\textcolor{orange}{(`r cont_count()`)}** Use the `Commodity` column from your subset created in step `r i-1` as the input to the `unique` function to see the unique values in that column.
 
 ```{r}
 #| eval: false
@@ -382,7 +384,7 @@ ______ <- (sum(_________) / __________) * 100
 
 ### Finishing up
 
-**\textcolor{orange}{(`r cont_count()`)}** At the end of your report, copy this list and paste it outside of a code chunk (this format will create bullet points in Quarto). Fill in the data you calculated for your county. Make sure that all of this information is also in the team Google Sheet for comparison with other counties. If you calculated anything extra that not on this list, be sure to add it so you have a record for later.
+**\textcolor{orange}{(`r cont_count()`)}** At the end of your report, copy this list and paste it outside of a code chunk (this format will create bullet points in your rendered report). Fill in the data you calculated for your county. Make sure that all of this information is also in the team Google Sheet for comparison with other counties. If you calculated anything extra that is not on this list, be sure to add it so you have a record for later.
 
 ```{r, eval=FALSE}
 - Total population:
@@ -392,7 +394,7 @@ ______ <- (sum(_________) / __________) * 100
 - Percentage of land used for agriculture in 2017:
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to carolynkoehn\@u.boisestate.edu.
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to [ INSERT EMAIL HERE ].
 
 \newpage
 #### Statement of original and referenced work:
