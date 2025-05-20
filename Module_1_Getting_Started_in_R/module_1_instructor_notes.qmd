@@ -1,0 +1,17 @@
+---
+title: "Instructor Notes"
+format: pdf
+---
+
+# Data
+
+This module does not use any data files.
+
+# Teaching notes
+
+- This module is best delivered in person to catch the idiosyncrasies of each student's computer as they install R, RStudio, and `tinytex` and render reports to PDF. It's important that those steps work so that students can complete the rest of the modules at their own pace.
+- In a 50-minute session, students were able to install R and RStudio on their personal computers and render their first PDF (through step 16).
+- If students already have R and RStudio on their computers, direct them to the "Update" section of https://datacarpentry.org/R-ecology-lesson/index.html
+- Older computers with very little storage may not have room to download `tinytex`. A possible workaround is to have students generate HTML reports instead.
+- Emphasize the importance of working in a project and the correct way to open a project every time a student opens RStudio.
+- Students may forget to uncheck the "Use visual markdown editor" box when creating their Quarto file. They can switch between source and visual view in the upper left corner underneath the file tab.
