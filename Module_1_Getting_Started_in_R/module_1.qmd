@@ -18,6 +18,9 @@ format: pdf
 ```{r}
 #| include: false
 
+# create a continuous count
+# when steps are added in document, all numbers will update automatically
+
 cont_count <- function () {
    assign("i", i+1, envir = .GlobalEnv)
   return(i)
