@@ -15,3 +15,4 @@ This module does not use any data files.
 - Older computers with very little storage may not have room to download `tinytex`. A possible workaround is to have students generate HTML reports instead.
 - Emphasize the importance of working in a project and the correct way to open a project every time a student opens RStudio.
 - Students may forget to uncheck the "Use visual markdown editor" box when creating their Quarto file. They can switch between source and visual view in the upper left corner underneath the file tab.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
