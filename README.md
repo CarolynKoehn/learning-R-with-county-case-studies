@@ -38,7 +38,7 @@ At this point, students may need to make figures for a presentation of their res
 but merely a template for students who need to make figures with limited time.
 
 Objectives:
-1. Make comparison plots with ggplot.
+1. Make comparison plots with `ggplot2`.
 
 ## Module 4: Agricultural Statistics, Part 2
 
