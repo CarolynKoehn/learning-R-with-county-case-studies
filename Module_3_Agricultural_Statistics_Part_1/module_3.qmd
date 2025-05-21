@@ -7,7 +7,7 @@ In the last module, we began to navigate data. We used `read.csv` to read data i
 
 ### Objectives:
 
-1. Review percent calculations used in Module 2 to calculate statistics on producer gender and race.
+1. Apply percent calculations used in Module 2 to entire columns to calculate statistics on producer gender and race.
 
 2. Use `unique` to calculate the variety of commodities produced by a county.
 
@@ -53,6 +53,8 @@ my_county_producers <- subset(producers, County == "BEAR LAKE")
 my_county_producers[, c("Year", "County", "Data.Item", "Value")]
 ```
 
+For efficiency, we will now work with the enitre `Value` column instead of one number at a time, as we did in Module 2.
+
 **\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` column using the code below:
 
 ```{r}
@@ -87,7 +89,7 @@ col_input <- i
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year`, `County`, `Data.Item`, and `Value` in your subset again to make sure the conversion to numbers worked. Your subset should look the same as the one you printed earlier, but all commas in the `Value` column should be removed.
 
-**\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers. Then, save the `Value` column into a new object.) Print the total number of producers in your county.
+**\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers. Then, save the `Value` column into a new object.) Print your object containing the total number of producers in your county.
 
 ```{r}
 #| include: false
