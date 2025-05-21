@@ -3,7 +3,7 @@ title: "Agricultural Statistics: Part 1"
 format: pdf
 ---
 
-In the last module, we began to navigate data. We used `read.csv` to read data into `R` and commands like `head` and `summary` to get information about that data. We used the `subset` function to filter data to a specific county of interest. We retrieved specific pieces of data with the command format `data_frame[row_number, column_number]` and `data_frame[, c("column_name1", "column_name2")]`, saved that information in objects, and used those objects in calculations. We used `c()` to make lists (technically known as vectors) of column names and row/column numbers. In this module, we are going to learn more data frame methods and focus on calculating statistics from the Census of Agriculture.
+In the last module, we began to navigate data. We used `read.csv` to read data into `R` and commands like `head` and `summary` to get information about that data. We used the `subset` function to filter data to a specific county of interest. We retrieved specific pieces of data with the command format `data_frame[row_number, column_number]` and `data_frame[,c("column_name1", "column_name2")]`, saved that information in objects, and used those objects in calculations. We used `c()` to make groups (technically known as vectors) of column names and row/column numbers. In this module, we are going to learn more data frame methods and focus on calculating statistics from the Census of Agriculture.
 
 ### Objectives:
 
@@ -31,11 +31,11 @@ i=1
 
 **\textcolor{orange}{(`r i`)}** Open RStudio and your project. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
 
-**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from the shared [Google Drive folder](https://drive.google.com/drive/folders/1QmtynAu6nZiitjeJCkCT9Sx3loq72_n1?usp=drive_link): producers_race_2017_ID.csv, commodities_ID_2017.csv, and num_farms_areafiltered_ tenure_1997_2017_ID.csv.
+**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/342f552e2dd108bb74f0537078168a0d2604022d/Module_3_Agricultural_Statistics_Part_1/data): `producers_race_2017_ID.csv`, `commodities_ID_2017.csv`, and `num_farms_areafiltered_ tenure_1997_2017_ID.csv`.
 
 ### Producer demographics
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from producers_race_2017_ID.csv. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 1 to inspect the data.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `producers_race_2017_ID.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 2 to inspect the data.
 
 ```{r}
 #| include: false
@@ -59,7 +59,7 @@ my_county_producers[, c("Year", "County", "Data.Item", "Value")]
 class(my_county_producers$Value)
 ```
 
-If the data type is `"integer"` or `"numeric"` you're good to go! We can do math with those types. **\textcolor{orange}{(`r cont_count()`)}** If the data type is `"character"`, use `as.numeric`, as well as `library(stringr)` and `str_remove_all` if necessary, to convert the `Value` column to numbers. You will need to overwrite the `Value` column to convert it.
+If the data type is `"integer"` or `"numeric"` you're good to go! We can do math with those types. **\textcolor{orange}{(`r cont_count()`)}** If the data type is `"character"`, use `as.numeric`, as well as `library(stringr)` and `str_remove_all` if necessary, to convert the `Value` column to numbers. You will need to overwrite the whole `Value` column to convert it. Notice how the syntax has changed slightly from Module 1 steps (21)-(26) -- we are working with a whole column (indicated by the `$`) rather than a single object.
 
 ```{r}
 #| eval: false
@@ -69,7 +69,7 @@ library(stringr)
 my_county_producers$Value <- str_remove_all(string = my_county_producers$Value,
                                         pattern = ",")
 
-my_county_producers$Value <- as.numeric(__________)
+my_county_producers$Value <- as.numeric(___________$_____)
 ```
 
 ```{r}
@@ -87,7 +87,7 @@ col_input <- i
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year`, `County`, `Data.Item`, and `Value` in your subset again to make sure the conversion to numbers worked. Your subset should look the same as the one you printed earlier, but all commas in the `Value` column should be removed.
 
-**\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers, then save the `Value` column.) Print the total number of producers in your county.
+**\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers. Then, save the `Value` column into a new object.) Print the total number of producers in your county.
 
 ```{r}
 #| include: false
@@ -95,7 +95,7 @@ col_input <- i
 total_producers <- subset(my_county_producers, Data.Item == "PRODUCERS, (ALL) - NUMBER OF PRODUCERS")$Value
 ```
 
-For the next step, we're going to use a different kind of filter that generates `TRUE/FALSE` values like `==` does. In the `stringr` library, we will use the function `str_detect`. **\textcolor{orange}{(`r cont_count()`)}** If you haven't read in the `stringr` library yet with `library(stringr)`, do so now. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to save the number of male producers into a new object. Make sure to include the space before `MALE`. Since `FEMALE` also includes the letters `MALE`, so I'm using a space to show `R` that there are no letters before the word `MALE`.
+For the next step, we're going to use a different kind of filter that generates `TRUE/FALSE` values like `==` does. In the `stringr` library, we will use the function `str_detect`. **\textcolor{orange}{(`r cont_count()`)}** If you haven't read in the `stringr` library yet with `library(stringr)`, do so now. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to save the number of male producers into a new object. Make sure to include the space before `MALE`. Since `FEMALE` also includes the letters `MALE`, we're using a space to show `R` that there are no letters before the word `MALE`.
 
 ```{r}
 male_producers <- subset(my_county_producers, 
@@ -118,7 +118,7 @@ print(male_producers)
 
 One measure of high quality farmland is how many different types of food it can produce. Therefore, it is useful to calculate how many types of food each county is currently producing.
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from commodities_ID_2017.csv. This dataset contains information about the number of farms and acres that are growing each type of crop. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 1. 
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `commodities_ID_2017.csv`. This dataset contains information about the number of farms and acres that are growing each type of crop. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 2. 
 
 ```{r}
 #| include: false
@@ -184,8 +184,8 @@ totals$perc <- round(totals$perc, 1)
 #totals
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from num_farms_
-areafiltered_tenure_1997_2017_ID.csv. This dataset has information about the number of farms in different acreage categories and ownership categories, as well as the total number of farms for each county in the years 1997 and 2017. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 1. 
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `num_farms_`
+`areafiltered_tenure_1997_2017_ID.csv`. This dataset has information about the number of farms in different acreage categories and ownership categories, as well as the total number of farms for each county in the years 1997 and 2017. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 2. 
 
 **\textcolor{orange}{(`r cont_count()`)}** Subset the farm operations data to your county _and_ to the year 2017. Print the `County`, `Domain`, `Domain.Category`, and `Value` columns.
 
@@ -220,11 +220,18 @@ my_county_tenure_agg <- aggregate(Value ~ Domain.Category,
 print(my_county_tenure_agg)
 ```
 
-Now, we're going to create a new column in this data frame to save the percentage of farms in each category. Creating a new column in a data frame is fairly straight-forward. We can print existing columns with the `$` in `data_frame$column_name`, and we can create new columns with `data_frame$new_column_name <-`. Everything after the `<-` assignment will go into the new column. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to create a new column in the `my_county_tenure_agg` data frame that calculates and saves the percentage of farms in each category in the correct row.
+Now, we're going to create a new column in this data frame to save the percentage of farms in each category. Creating a new column in a data frame follows the same pattern as accessing an existing column. We can print existing columns with the `$` in `data_frame$column_name`, and we can create new columns with `data_frame$new_column_name <-`. Everything after the `<-` assignment will go into the new column. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to create a new column in the `my_county_tenure_agg` data frame that calculates and saves the percentage of farms in each category in the correct row.
 
 ```{r}
 my_county_tenure_agg$Percent_farms <- my_county_tenure_agg$Value / total_farms * 100
 ```
+
+```{r}
+#| include: false
+
+create_percent_column_step <- i
+```
+
 
 Notice how we can apply the same math equation to a whole column (`Value`) to create a new column with the answer to that equation in the correct rows. 
 
@@ -232,7 +239,7 @@ Notice how we can apply the same math equation to a whole column (`Value`) to cr
 
 ### Farm size
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new object and use the data from step (23) to save a subset of the farm operations data where `Domain` is equal to `AREA OPERATED`. Print the `Domain` and `Domain.Category` columns of this subset to check that it worked.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new object and use the data from step (24) to save a subset of the farm operations data where `Domain` is equal to `AREA OPERATED`. Print the `Domain` and `Domain.Category` columns of this subset to check that it worked.
 
 ```{r}
 #| include: false
@@ -313,10 +320,12 @@ my_county_sizes$label <- ifelse(test = is.na(my_county_sizes$label),
 **\textcolor{orange}{(`r cont_count()`)}** `aggregate` the `Value` column (number of farms) _by_ the `label` column. Use `sum` as your function.
 
 ```{r}
-my_county_sizes_agg <- aggregate(Value ~ label, data=my_county_sizes, sum)
+my_county_sizes_agg <- aggregate(Value ~ label, 
+                                 data = my_county_sizes, 
+                                 FUN = sum)
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new column with the percentage of farms in each size category (Hint: step (27)).
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column with the percentage of farms in each size category (Hint: step (`r create_percent_column_step`)).
 
 **\textcolor{orange}{(`r cont_count()`)}** Create another column with the percentage rounded to one decimal place. Print the data frame and add the rounded percentages to the shared Google sheet.
 
@@ -341,10 +350,14 @@ my_county_sizes_agg <- aggregate(Value ~ label, data=my_county_sizes, sum)
 - Percent small farms:
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to carolynkoehn\@u.boisestate.edu.
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to [ INSERT EMAIL HERE ].
 
 \newpage
 #### Statement of original and referenced work:
 
-The entirety of this module is my original work.
+The entirety of this module is original work authored by Carolyn Koehn.
+
+#### License
+
+This module is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
 
