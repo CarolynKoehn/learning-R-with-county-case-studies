@@ -1,5 +1,5 @@
 # Learning R with county case studies
-This is a series of research modules designed to both teach beginning R users how to work with data and lead undergraduates through research by constructing case studies of individual counties. These modules are designed to be completed asynchrounously. If students work on these independently, weekly debriefing sessions are helpful to work students through any difficulties they encounter. Students in a class with 40 required research hours typically completed between 3-4 modules and a presentation of their research.
+This is a series of research modules designed to both teach beginning R users how to work with data and lead undergraduates through research by constructing case studies of individual counties. These modules are designed to be completed asynchrounously. If students work on these independently, weekly debriefing sessions are helpful to work students through any difficulties they encounter. Students in a class with 26 required research hours typically completed between 3-4 modules, as well as preparing and presenting both a lightning talk and a team oral talk or poster of their research.
 
 # Contents
 Each research module is contained in a separate folder containing a PDF of the instructions provided to students, an editable Quarto source file for the instructions, and instructor notes.
