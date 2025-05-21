@@ -1,0 +1,17 @@
+---
+title: "Data Visualization Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## `Case study data_10-30-23.csv`
+
+These were the data that 2 students collected together in their first semester in this research course. This data sheet was downloaded from the Google Sheet where they were recording their findings. Both students completed Modules 1-3, and had worked through some part of Module 4.
+
+# Teaching notes
+
+- This was taught as a live coding session. I demonstrated how to create all the bar graphs in this tutorial, then worked with each student individually to personalize their figures.
+- I like to run the code for the complex bar graph one line at a time so students can see how it builds on itself, and as a demonstration of how students can troubleshoot their own code.
+
