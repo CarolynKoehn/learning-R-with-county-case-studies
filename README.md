@@ -62,12 +62,10 @@ hospitality, and technology), residents over retirement age, and net migration r
 ## Module 6: Reproducible Data Retrieval: Pulling Data Directly into R
 
 Objectives:
-1. Navigate the US Census API to locate variables of interest from the American Commu-
-nity Survey.
+1. Navigate the US Census API to locate variables of interest from the American Community Survey.
 2. Use the `tidycensus` package to pull data from the American Community Survey and
 calculate a descriptive metric of interest.
-3. Use the NASS Quick Stats page to locate variables of interest from the Census of Agri-
-culture.
+3. Use the NASS Quick Stats page to locate variables of interest from the Census of Agriculture.
 4. Use the `rnassqs` package to pull data from the Census of Agriculture and calculate a
 descriptive metric of interest.
 
