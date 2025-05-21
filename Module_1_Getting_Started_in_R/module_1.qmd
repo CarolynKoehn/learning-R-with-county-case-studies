@@ -63,6 +63,8 @@ When you create a file, it will appear as a panel in the top left corner above t
 >
 > ([source: Data Carpentry Data Analysis and Visualization in R for Ecologists](https://datacarpentry.org/R-ecology-lesson/00-before-we-start.html))
 
+You should save all the code files you write and all the data you download in this new project folder.
+
 We are going to save our work by creating files, so we do not want R to save another record of all the code we run, which is a default setting in RStudio. **\textcolor{orange}{(`r cont_count()`)}** Under the `Tools` menu, click `Global Options`. Uncheck the box next to `Restore .RData into workspace at startup` and change the `Save workspace to .RData on exit` to `Never`. Accessibility options for RStudio are available in this menu at the bottom of the left panel.
 
 ![](images/global_options.PNG){width="4in" fig-alt="A screenshot of the global options menu in RStudio. The workspace options described above are in a purple box. Accessibility options are at the bottom of the left-hand options menu panel."}
