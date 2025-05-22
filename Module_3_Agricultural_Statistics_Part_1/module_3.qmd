@@ -61,7 +61,7 @@ For efficiency, we will now work with the enitre `Value` column instead of one n
 class(my_county_producers$Value)
 ```
 
-If the data type is `"integer"` or `"numeric"` you're good to go! We can do math with those types. **\textcolor{orange}{(`r cont_count()`)}** If the data type is `"character"`, use `as.numeric`, as well as `library(stringr)` and `str_remove_all` if necessary, to convert the `Value` column to numbers. You will need to overwrite the whole `Value` column to convert it. Notice how the syntax has changed slightly from Module 1 steps (21)-(26) -- we are working with a whole column (indicated by the `$`) rather than a single object.
+If the data type is `"integer"` or `"numeric"` you're good to go! We can do math with those types. **\textcolor{orange}{(`r cont_count()`)}** If the data type is `"character"`, use `as.numeric`, as well as `library(stringr)` and `str_remove_all` if necessary, to convert the `Value` column to numbers. You will need to overwrite the whole `Value` column to convert it. Notice how the syntax has changed slightly from Module 2 steps (21)-(26) -- we are working with a whole column (indicated by the `$`) rather than a single object.
 
 ```{r}
 #| eval: false
