@@ -3,18 +3,6 @@ title: "Demographic Data"
 format: pdf
 ---
 
-Author: Carolyn Koehn
-
-Date Created: September 21, 2023
-
-Date Modified: October 16, 2023
-
-Date Delivered: November 2023 (expected)
-
-Outlet of Delivery: VIP team meeting
-
-\bigskip
-
 In the last module, we used a variety of functions to calculate metrics from Census of Agriculture data. By now, you may be used to how that data is formatted. Now, we will apply those functions to data from a different source, the American Community survey, to calculate population demographics. These data are not all in the same format and will require data cleaning steps before we can calculate metrics.
 
 ### Objectives:
@@ -30,6 +18,8 @@ In the last module, we used a variety of functions to calculate metrics from Cen
 ```{r}
 #| include: false
 
+# continuous count function for steps in handout
+
 cont_count <- function () {
    assign("i", i+1, envir = .GlobalEnv)
   return(i)
@@ -39,13 +29,13 @@ i=1
 
 ### Getting Started
 
-**\textcolor{orange}{(`r i`)}** Open RStudio by double-clicking the project file you created. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file (refer to the "Create a Quarto Document" section in the first module).
+**\textcolor{orange}{(`r i`)}** Open RStudio and your project file. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
 
-**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from the shared [Google Drive folder](https://drive.google.com/drive/folders/1QmtynAu6nZiitjeJCkCT9Sx3loq72_n1?usp=drive_link): ID_employment.csv and ID_county-to-county-2013-2017-ins-outs-nets-gross.csv.
+**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data): `ID_employment.csv` and `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`.
 
 ### Employment metrics
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from ID_employment.csv. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 1 to inspect the data.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ID_employment.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 2 to inspect the data.
 
 ```{r}
 #| include: false
@@ -54,13 +44,14 @@ library(tidycensus)
 library(dplyr)
 library(stringr)
 
-census_api_key("2817397abca2bd851d59398a187e91c800495d9e")
+readRenviron("../.Renviron")
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
 
 emply <- read.csv("data/ID_employment.csv")
 my_county_employ <- subset(emply, NAME == "Bear Lake County, Idaho")
 ```
 
-This is 2017 data from the American Community Survey. It has information on the gender and employment sector of residents in each county, but this information is contained in codes in the variable column. The meanings of these codes are stored in ID_employment_codes.csv in the Google Drive folder. The `moe` column stands for "margin of error" -- an important estimate of uncertainty. However, we will not be using it for these case studies.
+This is data from the American Community Survey for the year 2017. It has information on the gender and employment sector of residents in each county, but this information is contained in codes in the variable column. The meanings of these codes are stored in `ID_employment_codes.csv` in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data). The `moe` column stands for "margin of error" -- an important estimate of uncertainty. However, we will not be using it for these case studies.
 
 **\textcolor{orange}{(`r cont_count()`)}** Filter the employment data to your county.
 
@@ -74,7 +65,7 @@ total_population <- 5942
 
 We need to calculate the percent of county residents employed in (1) agriculture, (2) manufacturing/warehousing, (3) hospitality, and (4) technology. To do this, we need the corresponding codes.
 
-**\textcolor{orange}{(`r cont_count()`)}** Look at the ID_employment_codes.csv file in the Google Drive folder. I have pulled the codes and code meanings from the American Community Survey API and paired them in this document.
+**\textcolor{orange}{(`r cont_count()`)}** Look at the `ID_employment_codes.csv` file in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data).
 
 **\textcolor{orange}{(`r cont_count()`)}** Make a table of the codes that apply to each category in your report. Since codes refer to employment and gender, there will be at least two codes for each category.
 
@@ -89,23 +80,21 @@ To make a table, use the website [https://www.tablesgenerator.com/markdown_table
 | Technology | Information  | 2 codes  |
 | Technology | Professional, scientific, and technical services  | 2 codes  |
 
-Next, we will use four `filter` operations (from the `dplyr` library) to find the number of people employed in each sector of interest. A comparison we can use in `filter` is `%in%`. When this logical expression is used, `filter` will keep any row with a value in the vector following `%in%`.
+Next, we will use four `subset` operations to find the number of people employed in each sector of interest. A comparison we can use in `subset` is `%in%`. When this logical expression is used, `subset` will keep any row with a value in the vector following `%in%`.
 
 **\textcolor{orange}{(`r cont_count()`)}** Modify the code below to filter to the agricultural codes.
 
 ```{r}
 #| eval: false
 
-library(dplyr)
-
-my_county_ag_employed <- filter(my_county_employ,
+my_county_ag_employed <- subset(my_county_employ,
                                 variable %in% c("C24030_004", "C?????_???"))
 ```
 
 ```{r}
 #| include: false
 
-my_county_ag_employed <- filter(my_county_employ,
+my_county_ag_employed <- subset(my_county_employ,
                                 variable %in% c("C24030_004", "C24030_031"))
 agem <- sum(my_county_ag_employed$estimate)
 
@@ -175,13 +164,13 @@ If you want to calculate other metrics from this table, you can find all the cod
 
 The net migration rate is calculated with this equation:
 
-\begin{math} netmigration  = \frac{numentering - numleaving}{population} \cdot 1000 \end{math}
+\begin{math} NetMigration  = \frac{NumEntering - NumLeaving}{Population} \cdot 1000 \end{math}
 
 Net migration per 1,000 residents is the number of people entering the county minus the number of people leaving divided by the total population in the middle of the time period.
 
-In ID_county-to-county-2013-2017-ins-outs-nets-gross.csv, we have information on the counties that people moved to and moved out of between 2013 and 2017. We need to calculate (1) the number of people that moved to your county in that time period, (2) the number of people who moved out of your county in that time period, and (3) the county population in 2015 to calculate the net migration rate.
+In `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`, we have information on the counties that people moved to and moved out of between 2013 and 2017. We need to calculate (1) the number of people that moved to your county in that time period, (2) the number of people who moved out of your county in that time period, and (3) the county population in 2015 to calculate the net migration rate.
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from ID_county-to-county-2013-2017-ins-outs-nets-gross.csv. **\textcolor{orange}{(`r cont_count()`)}** Use `colnames` to inspect the data.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `colnames` to inspect the data.
 
 ```{r}
 #| include: false
@@ -258,18 +247,18 @@ my_county_migration <- my_county_migration %>%
          Counterflow.from.Geography.A.to.Geography.B1 = as.numeric(str_remove_all(Counterflow.from.Geography.A.to.Geography.B1, ",")))
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved to your county between 2013-2017 (hint: use one of the columns from step (`r i-1`) in a function that will add all the values together). Save this value in an object called `inflow`.
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved to your county between 2013-2017 (hint: use one of the columns from step (`r i-1`) in a function that will add all the values together). Save this value in an object called `NumEntering`.
 
-**\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved out of your county between 2013-2017 (hint: use the other column from step (`r i-2`)). Save this value in an object called `outflow`.
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved out of your county between 2013-2017 (hint: use the other column from step (`r i-2`)). Save this value in an object called `NumLeaving`.
 
 ```{r}
 #| include: false
 
-inflow <- sum(my_county_migration$Flow.from.Geography.B.to.Geography.A, na.rm=TRUE)
-outflow <- sum(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1, na.rm=TRUE)
+NumEntering <- sum(my_county_migration$Flow.from.Geography.B.to.Geography.A, na.rm=TRUE)
+NumLeaving <- sum(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1, na.rm=TRUE)
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Print `inflow` and `outflow` to check your work.
+**\textcolor{orange}{(`r cont_count()`)}** Print `NumEntering` and `NumLeaving` to check your work.
 
 We have two out of the three pieces of data needed to calculate net migration. The last piece of information we need is the total population in 2015 (the middle of the time period). We are going to pull this number from the US Census. 
 
@@ -306,17 +295,17 @@ total_population_2015 <- my_county_population_2015$estimate
 
 **\textcolor{orange}{(`r cont_count()`)}** Use the three objects you created in steps (`r i-5`), (`r i-4`), and (`r i-1`) to calculate net migration according to the following equation:
 
-\begin{math} netmigration  = \frac{inflow - outflow}{totalpopulation2015} \cdot 1000 \end{math}
+\begin{math} NetMigration  = \frac{NumEntering - NumLeaving}{totalpopulation2015} \cdot 1000 \end{math}
 
 ```{r}
 #| include: false
 
-net_migration <- (inflow-outflow)/total_population_2015 * 1000
+net_migration <- (NumEntering-NumLeaving)/total_population_2015 * 1000
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Round the net migration rate you calculated to the ones place (no decimal points) and print the net migration you calculated. If the number is positive, this is the amount of people your county is growing by per 1000 people. If it is negative, that is how fast your county is shrinking per 1000 people.
 
-For example, the net migration rate for Bear Lake county is -23 per 1,000 people. This means that for every 1,000 people in Bear Lake county in 2013, 23 people left by 2017. The population of Bear Lake county is shrinking.
+For example, the net migration rate for Bear Lake County is -23 per 1,000 people. This means that for every 1,000 people in Bear Lake County in 2013, 23 people left by 2017. The population of Bear Lake County is shrinking.
 
 **\textcolor{orange}{(`r cont_count()`)}** Use the statement above as a template to write about the net migration rate for your county. **\textcolor{orange}{(`r cont_count()`)}** Record the net migration rate of your county in the shared Google sheet.
 
@@ -333,9 +322,13 @@ For example, the net migration rate for Bear Lake county is -23 per 1,000 people
 - Net migration per 1,000 residents, 2013-2017:
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to carolynkoehn\@u.boisestate.edu.
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to [ INSERT EMAIL HERE ].
 
 \newpage
 #### Statement of original and referenced work:
 
-The entirety of this module is my original work.
+The entirety of this module is original work authored by Carolyn Koehn.
+
+#### License
+
+This module is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
