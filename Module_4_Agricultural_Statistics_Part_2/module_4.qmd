@@ -1,0 +1,437 @@
+---
+title: "Agricultural Statistics: Part 2"
+format: pdf
+---
+
+In the last module, we used more complex data frame manipulations and calculations to calculate descriptive statistics from the Census of Agriculture. We used `unique` and `length` to calculate the number of commodities a county produces. We used `aggregate` to find the number of farms in each data category. We used `ifelse` to assign labels to data based on their attributes. In this module, we will focus on calculating trends of Census of Agriculture data through time.
+
+### Objectives:
+
+1. Use subsets, joins, and calculations across rows to quantify 20-year change in farm size and ownership.
+
+2. Use calculations based on a previous row (with `lag`) to quantify 20-year change in 5-year intervals for agricultural land use and agricultural sales.
+
+3. Use the `dplyr` package for data cleaning.
+
+\newpage
+
+### Getting Started
+
+```{r}
+#| include: false
+
+# continuous count function for numbering in text
+
+cont_count <- function () {
+   assign("i", i+1, envir = .GlobalEnv)
+  return(i)
+}
+i=1
+```
+
+
+**\textcolor{orange}{(`r i`)}** Open RStudio and your project file. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
+
+**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from the shared [Google Drive folder](https://drive.google.com/drive/folders/1QmtynAu6nZiitjeJCkCT9Sx3loq72_n1?usp=drive_link) if you have not already done so: num_farms_areafiltered_tenure_1997_2017_ID.csv, cropland_pastureland_total_acres_ID_1997-2017.csv, ag_sales_ID_1997-2017.csv, and ag_expenses_ID_1997-2017.csv.
+
+### Trends in farm size and ownership
+
+```{r}
+#| include: false
+
+sizes <- read.csv("data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
+
+my_county_size_tenure <- subset(sizes, County == "BEAR LAKE")
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from num_farms_ areafiltered_tenure_1997_2017_ID.csv. We used this dataset in module 2.1 -- it has information about the number of farms in different ownership and size categories. **\textcolor{orange}{(`r cont_count()`)}** Subset the data to your county. **\textcolor{orange}{(`r cont_count()`)}** Use two lines of code with the `unique` function to print the unique entries in the columns `Year` and `Domain`. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` column. If the data type is `"character"`, use `as.numeric`, as well as `str_remove_all` if necessary, to convert the `Value` column to numbers.
+
+We want to calculate how the number of farms in these categories has changed in the last 20 years. **\textcolor{orange}{(`r cont_count()`)}** Make **two** subsets: one for 2017 data and one for 1997 data.
+
+```{r}
+#| include: false
+
+library(stringr)
+
+my_county_size_tenure$Value <- as.numeric(str_remove_all(my_county_size_tenure$Value, ","))
+
+my_county_size_tenure_2017 <- subset(my_county_size_tenure, Year == 2017)
+my_county_size_tenure_1997 <- subset(my_county_size_tenure, Year == 1997)
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Save the total number of farms in each year in two objects called `total_farms_2017` and `total_farms_1997` by retrieving the number in the `Value` column where `Domain` is equal to `TOTAL` in each of the two subsets you created in step (`r i-1`).
+
+```{r}
+#| include: false
+
+total_farms_2017 <- subset(my_county_size_tenure_2017, Domain == 'TOTAL')$Value
+total_farms_1997 <- subset(my_county_size_tenure_1997, Domain == 'TOTAL')$Value
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Subtract the number of farms in 1997 from the number of farms in 2017. Record the result in the shared Google sheet. A negative number indicates a loss of farms.
+
+```{r}
+total_farms_2017 - total_farms_1997
+```
+
+A raw number of change can be useful, but it's more useful to us if we put it in context. A loss of 56 farms is trivial in a county with thousands of farms, but more concerning in a county with 100 farms. Therefore, we want to calculate the percent change as well as the total change. **\textcolor{orange}{(`r cont_count()`)}** Divide the total change in farms by the total number of farms in 1997, then multiply by 100 to calculate percent change. Add this value to the shared Google sheet.
+
+```{r}
+(total_farms_2017 - total_farms_1997) / total_farms_1997 * 100
+```
+
+It can be helpful to interpret these results in plain language. I would present these results in this way: "Bear Lake county lost 56 of its farms between 1997 and 2017, a reduction of 12%." **\textcolor{orange}{(`r cont_count()`)}** Write a similar statement to interpret the results for your county.
+
+In module 2.1, we applied an equation to an entire column and saved the result in a new column. We can not only apply an equation to a single column, but also create equations with two or more columns. 
+
+First, we need to make sure they are lined up correctly. We will line up the number of farms in 1997 and 2017 for each category, and then find the difference for every row. This is the power of coding -- we don't have to repeat steps (`r i-3`)-(`r i-2`) over and over again!
+
+To do this, we're going to need to do a bit of data cleaning. The best library to do this is called `dplyr`. We can accomplish a lot of things with the base `R` code we've learned so far, but it gets complicated and hard to read very quickly. `dplyr` is generally a better choice for complicated data cleaning, especially if anyone else is going to collaborate with you.
+
+**\textcolor{orange}{(`r cont_count()`)}** Run `install.packages("dplyr")` in the Console. **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and read in the `dplyr` library with `library(dplyr)`.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(dplyr)
+```
+
+You may have noticed that our data has a lot of extra columns we're not using. It wasn't a big problem in other modules, but it can make joining columns tedious. We're going to use the `select` function from `dplyr` to grab just the columns we'll need for this calculation. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to select the columns `Domain.Category` and `Value` from your two subsets (you may change the object names).
+
+```{r}
+#| include: false
+
+select_step <- i
+```
+
+
+```{r}
+my_county_size_tenure_2017_selected <- select(my_county_size_tenure_2017,
+                                              c(Domain.Category, Value))
+
+my_county_size_tenure_1997_selected <- select(my_county_size_tenure_1997,
+                                              c(Domain.Category, Value))
+```
+
+Notice that the columns names are _not_ in quotes here, but we still use the `c()` function to list out multiple names. **\textcolor{orange}{(`r cont_count()`)}** Print the `colnames` for each of these data frames. Make sure that only `Domain.Category` and `Value` remain. 
+
+Now, we are going to **join** the two data frames together. There are a lot of different types of joins (if you're interested, see more examples [here](https://statisticsglobe.com/r-dplyr-join-inner-left-right-full-semi-anti)), but we are going to exclusively use the function `full_join` from `dplyr`.
+
+`full_join` figures out which rows should match based on a key or multiple key columns. We will use `Domain.Category` as our key. We will also specify suffixes for our value columns so we know which year applies to each column. For a visual representation of this process, see Figure 1 on the next page.
+
+![Joining two data frames based on a key column](joins_image.png){width=100% fig-alt="At the top are two tables with the first three rows of the selected data frames created above labeled with the names of those data frame objects. The Domain.Category columns are highlighted in purple and labelled 'Key column.' The code for joins is shown, and then a table with the Domain.Category column, a column for the 1997 values, and a column for the 2017 values."}
+
+**\textcolor{orange}{(`r cont_count()`)}** Use the code below to join the 2017 and the 1997 data into one data frame.
+
+```{r}
+my_county_size_tenure_joined <- full_join(my_county_size_tenure_2017_selected,
+                                          my_county_size_tenure_1997_selected,
+                                          by = "Domain.Category",
+                                          suffix = c("_2017", "_1997"))
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the `head` or `tail` of the result and check that it looks right. Are the numbers for 2017 and 1997 similar in each row? You may also want to refer to the two data frames you joined and spot check to see if the numbers ended up in the correct rows.
+
+Now, we can find the different for every row at the same time. **\textcolor{orange}{(`r cont_count()`)}** Create a new column called `Difference`, subtract the `Value_2017` column from the `Value_1997` column and save it in the new column, and print the `head` of the result.
+
+```{r}
+my_county_size_tenure_joined$Difference <- 
+  my_county_size_tenure_joined$Value_2017 - 
+  my_county_size_tenure_joined$Value_1997
+
+head(my_county_size_tenure_joined)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a subset of this data where the `Domain.Category` contains the word `TENURE` (hint: use `str_detect`). **\textcolor{orange}{(`r cont_count()`)}** Print the columns `Domain.Category` and `Difference` in your tenure subset, and report the changing number of farms in each category of farm ownership on the shared Google sheet.
+
+**\textcolor{orange}{(`r cont_count()`)}** Divide the `Difference` column by the `Value_1997` column in your tenure subset and multiply that value by 100. Save the result in a new column called `Percent_difference` and report your results in the shared Google sheet.
+
+Next, let's do the same with the size categories. We need to use the aggregating method we used in module 2.1. **\textcolor{orange}{(`r cont_count()`)}** Create a subset of this data where the `Domain.Category` contains the word `AREA`. **\textcolor{orange}{(`r cont_count()`)}** Create a new column called `label` and fill it with `NA`.
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `ifelse` to test if `Domain.Category` contains ",000". Every category with this pattern is over 1,000 acres. If yes, then let `label` be "Large farms." If no, let `label` keep its current value.
+
+```{r}
+#| eval: false
+
+_____$label <- ifelse(test = str_detect(string = _____$_______,
+                                       pattern = "____"),
+                                yes = "_________",
+                                no = ______$label)
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `ifelse` to test if `Domain.Category` contains a period. If yes, then let `label` be "Small farms." If no, let `label` keep its current value.
+
+```{r}
+#| eval: false
+
+_____$label <- ifelse(test = str_detect(_________________,
+                                       _________ = "\\."),
+                                _____________,
+                                _____________)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Finally, use `ifelse` to test if `label` still equals `NA`. If yes, then let `label` be "Mid-sized farms." If no, let `label` keep its current value.
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the `Domain.Category` and `label` columns of your area data frame to check the result of this code.
+
+```{r}
+#| include: false
+
+my_county_sizes <- subset(my_county_size_tenure_joined, str_detect(Domain.Category, "AREA"))
+
+my_county_sizes$label <- NA
+
+my_county_sizes$label <- ifelse(test = 
+                                  str_detect(string = my_county_sizes$Domain.Category,
+                                             pattern = ",000"),
+                                yes = "Large farms",
+                                no = my_county_sizes$label)
+
+my_county_sizes$label <- ifelse(test = 
+                                  str_detect(string = my_county_sizes$Domain.Category,
+                                             pattern = "\\."),
+                                yes = "Small farms",
+                                no = my_county_sizes$label)
+
+my_county_sizes$label <- ifelse(test = is.na(my_county_sizes$label),
+                                yes = "Mid-sized farms",
+                                no = my_county_sizes$label)
+```
+
+We're going to use the `dplyr` version of `aggregate`, called `summarise`, since we want to keep two columns: `Value_1997` and `Difference`. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to summarise the number of farms in 1997 and the 20-year difference in each category. (The `#` lines are comments to tell you what the line above them does. You don't need to copy them into your report.)
+
+```{r}
+my_county_sizes_agg <- summarise(my_county_sizes, 
+                                 # data frame to be summarised
+                                 .by = label,
+                                 # group to summarise by
+                                 Value_1997_sum = sum(Value_1997, na.rm = TRUE),
+                                 Difference_sum = sum(Difference, na.rm = TRUE))
+# create new columns which equal the sum of the columns in my_county_sizes
+# na.rm equal to true means NAs will be ignored
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the summarised data frame and record the difference of number of farms in each category in the shared Google sheet.
+
+**\textcolor{orange}{(`r cont_count()`)}** Divide the `Difference_sum` column by the `Value_1997_sum` column in your farm sizes data frame and multiply that value by 100. Save the result in a new column called `Percent_difference` and report your results in the shared Google sheet.
+
+### Agricultural Land Use Change
+
+```{r}
+#| include: false
+
+agland <- read.csv("data/cropland_pastureland_total_acres_ID_1997-2017.csv")
+
+my_county_agland <- subset(agland, County == "BEAR LAKE")
+
+my_county_agland$Value <- as.numeric(str_remove_all(my_county_agland$Value, ","))
+
+my_county_land <- subset(my_county_agland, str_detect(Data.Item, "NON-AG"))
+my_county_agland <- subset(my_county_agland, !str_detect(Data.Item, "NON-AG"))
+
+my_county_agland <- aggregate(Value ~ Year, data=my_county_agland, sum)
+
+my_county_land <- select(my_county_land, c(Year, Value))
+
+my_county_agland <- full_join(my_county_agland,
+                              my_county_land,
+                              by="Year",
+                              suffix = c("_ag", "_total"))
+
+my_county_agland$Value_total[1] <- my_county_agland$Value_total[2]
+
+my_county_agland$Perc_ag <- my_county_agland$Value_ag / my_county_agland$Value_total * 100
+
+my_county_land_join <- my_county_agland
+
+my_county_agland$Perc_ag_lag <- lag(my_county_agland$Perc_ag)
+my_county_agland$rate <- my_county_agland$Perc_ag - my_county_agland$Perc_ag_lag
+
+mean(my_county_agland$rate, na.rm=TRUE)
+my_county_agland$Perc_ag[5] - my_county_agland$Perc_ag[1]
+
+my_county_land_join <- my_county_agland
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from cropland_ pastureland_total_acres_ID_1997-2017.csv. We used this dataset in module 1 -- it has information about the amount of land used for cropland, pastureland, and the total land in each county. **\textcolor{orange}{(`r cont_count()`)}** Subset the data to your county. **\textcolor{orange}{(`r cont_count()`)}** Use two lines of code with the `unique` function to print the unique entries in the columns `Year` and `Data.Item`. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` column in the land use subset you created in in step `r i-3`. If the data type is `"character"`, use `as.numeric`, as well as `str_remove_all` if necessary, to convert the `Value` column to numbers.
+
+Next, we need to separate the total land in each year from the agricultural land in each year. **\textcolor{orange}{(`r cont_count()`)}** Create a subset of this data frame where `Data.Item` contains the string `"NON-AG"` (hint: use `str_detect`). Print the result.
+
+**\textcolor{orange}{(`r cont_count()`)}** To prepare this data for joining, '`aggregate` or `summarise` the `Value` column by `Year`.
+
+To create a data frame of agricultural land for each year, we simply need to flip the selection you just used and subset to all the rows that do _not_ contain the string `"NON-AG"`. In `R`, an exclamation point means "not." For example, `!=` means "not equal to."
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk, copy and paste the subset code you used in step (`r i-1`), change the name of the subset object to indicate that this is a subset of agricultural land, and add a `!` in front of your `str_detect` statement. Print the `unique` values in the `Data.Item` column of your new subset to check that the code worked.
+
+**\textcolor{orange}{(`r cont_count()`)}** Find the sum of cropland and pastureland acres in each year for your county. You can use `aggregate` or `summarise`. (Hint: find the sum of `Value` by `Year`.)
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `full_join` to join your agricultural land and total land subsets. Make sure to use suffixes that make sense to you.
+
+```{r}
+#| eval: false
+
+_____ <- full_join(my_county_agland,
+                   my_county_land_incl_non_ag,
+                   by = "____",
+                   suffix = c("____", "____"))
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the result.
+
+For the next few lines of code to work, we need to arrange the years from earliest (1997) in row 1 to latest (2017) in the last row. Your data may already be in this order. **\textcolor{orange}{(`r cont_count()`)}** If it is not, use the code below to use the `dplyr` function `arrange` to organize the rows of your data by `Year`.
+
+```{r}
+my_county_land_join <- arrange(my_county_land_join,
+                               Year)
+```
+
+```{r}
+#| include: false
+
+arrange_step <- i
+```
+
+
+A quirk of this data is that the Census of Agriculture did not start recording the total land in each county until 2002. We can pretty safely assume that the total land in each county was about the same in 1997 as it was in 2002. The code below takes the number in the `Value_total` column, row 2 and copies it into the `Value_total` column, row 1. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to fill in the 1997 total land spot. Make sure to modify this code if your object or column names are different.
+
+```{r}
+#| eval: false
+
+my_county_land_join$Value_total[1] <- my_county_land_join$Value_total[2]
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column, calculate the percent of county land that was used for agriculture in each year, and save the values in the new column.
+
+**\textcolor{orange}{Optional challenge: (`r i`.1)}** Check the results of your calculation with a simple graph. Use the code below to track the percentage of agricultural land in your county through time. Make note of any interesting trends you see.
+
+```{r}
+plot(x = my_county_land_join$Year,
+     y = my_county_land_join$Perc_ag,
+     type = "l") # "l" (lowercase L) for line plot
+```
+
+The metrics we will use to characterize this change over time are total change over 20 years and recent change from 2012 to 2017. **\textcolor{orange}{Optional: (`r i`.2)}** Do you see any trends in your plot that you think might be important that are not described by these two metrics? If so, please make note of it for me here so I can improve our research design.
+
+**\textcolor{orange}{(`r cont_count()`)}** Use the format `data_frame[row_number, "column_name"]` to subtract the percentage of agricultural land in 1997 from the percentage of agricultural land in 2017 to find total change from 1997 to 2017. Record the value in the shared data sheet.
+
+Now, we are going to do the same calculation for each year so we can get the percent change of agricultural land in 5 year increments. The easiest way to refer to the previous year's value is to create a _lag_ column. This will line up the values we want to subtract from each other. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to create a new column called `Perc_lag` that contains the values of the column `Perc_ag` shifted down one cell.
+
+```{r}
+my_county_land_join$Perc_lag <- lag(my_county_land_join$Perc_ag,
+                                    n = 1)
+
+head(my_county_land_join)[, c("Year", "Perc_ag", "Perc_lag")]
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the results of this code by printing the `head` of your data frame or clicking the data frame in the Environment panel.
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `rate` that contains the `Perc_lag` column subtracted from the `Perc_ag` column.
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year` and `rate`. **\textcolor{orange}{(`r cont_count()`)}** Record the rate for 2017 on the shared Google sheet.
+
+**\textcolor{orange}{(`r cont_count()`)}** Are there any rates that stand out to you that we are not recording in our shared Google sheet? If so, make note of them in your report.
+
+### Agricultural Sales
+
+```{r}
+#| include: false
+
+sales <- read.csv("data/ag_sales_ID_1997-2017.csv")
+sales <- subset(sales, County == "BEAR LAKE")
+expenses <- read.csv("data/ag_expenses_ID_1997-2017.csv")
+expenses <- subset(expenses, County == "BEAR LAKE")
+
+sales$Value <- as.numeric(str_remove_all(sales$Value, ","))
+expenses$Value <- as.numeric(str_remove_all(expenses$Value, ","))
+
+sales2 <- summarise(sales, .by=Year, Value = sum(Value, na.rm=TRUE))
+expenses2 <- summarise(expenses, .by=Year, Value = sum(Value, na.rm=TRUE))
+
+profits <- full_join(sales2, expenses2, by="Year", suffix=c("_sales", "_expenses"))
+
+profits$profit <- profits$Value_sales - profits$Value_expenses
+
+#plot(profits$Year, profits$profit, type="l")
+
+profits <- arrange(profits, Year)
+
+profits$lagged <- lag(profits$profit)
+profits$rate <- profits$profit - profits$lagged
+
+profits$profit[5] - profits$profit[1]
+profits$profit[5] - profits$profit[4]
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from ag_sales_ID_1997-2017.csv and ag_expenses_ID_1997-2017.csv. These datasets have information about total agricultural sales and expenses, respectively, for 1997, 2002, 2007, 2012, and 2017. **\textcolor{orange}{(`r cont_count()`)}** Subset each data frame to your county. **\textcolor{orange}{(`r cont_count()`)}** Preview the data by printing the `head` of the columns `Year`, `Data.Item`, `Domain.Category`, and `Value` in each data frame. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` columns. If the data type is `"character"`, use `as.numeric`, as well as `str_remove_all` if necessary, to convert the `Value` columns to numbers in both data frames.
+
+**\textcolor{orange}{(`r cont_count()`)}** Find the sum of sales by year for your county. You can use `aggregate` or `summarise`. **\textcolor{orange}{(`r cont_count()`)}** Do the same for expenses.
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `full_join` to join your sales and expenses subsets. Make sure to use suffixes that make sense to you. **\textcolor{orange}{(`r cont_count()`)}** Print the result.
+
+**\textcolor{orange}{(`r cont_count()`)}** If your data frame is not arranged with 1997 in row 1 to 2017 in the last row, use the code in step (`r arrange_step`) to organize the rows of your data by `Year`.
+
+**\textcolor{orange}{(`r cont_count()`)}** Subtract the expenses column from the sales column and save the result in a new column called `profit`.
+
+**\textcolor{orange}{(Optional: `r i`.1)}** Use `plot` to visualize profits over time. Make note of anything that catches your eye about this graph.
+
+**\textcolor{orange}{(`r cont_count()`)}** Subtract profits in 1997 from profits in 2017 to find total change in profits from 1997 to 2017. Record the value in the shared data sheet.
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `profits_lagged` that contains the values of the column `profit` shifted down one cell.
+
+```{r}
+#| eval: false
+
+_______$______ <- lag(_______$______,
+                      n = __)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the results of this code by printing the `head` of your data frame or clicking the data frame in the Environment panel.
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `rate` that contains the `profits_lagged` column subtracted from the `profit` column.
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year` and `rate`. **\textcolor{orange}{(`r cont_count()`)}** Record the rate for 2017 on the shared Google sheet.
+
+**\textcolor{orange}{(`r cont_count()`)}** Are there any rates that stand out to you that we are not recording in our shared Google sheet? If so, make note of them in your report.
+
+### Finishing up
+
+**\textcolor{orange}{(`r cont_count()`)}** At the end of your report, copy this list and paste it outside of a code chunk to create bullet points. Fill in the data you calculated for your county. Make sure that all of this information is also in the team Google Sheet for comparison with other counties. If you calculated anything extra that not on this list, be sure to add it so you have a record for later.
+
+```{r, eval=FALSE}
+- Change in number of farms, 1997-2017:
+- Percent change of farms, 1997-2017:
+- Change in number of full-owned farms, 1997-2017:
+- Change in number of part-owned farms, 1997-2017:
+- Change in number of tenant-operated farms, 1997-2017:
+- Percent change of full-owned farms, 1997-2017:
+- Percent change of part-owned farms, 1997-2017:
+- Percent change of tenant-operated farms, 1997-2017:
+- Change in number of small farms, 1997-2017:
+- Change in number of mid-sized farms, 1997-2017:
+- Change in number of large farms, 1997-2017:
+- Percent change of small farms, 1997-2017:
+- Percent change of mid-sized farms, 1997-2017:
+- Percent change of large farms, 1997-2017:
+- Percent change of agricultural land, 1997-2017:
+- Recent percent change of agricultural land, 2012-2017:
+- Change in agricultural profits, 1997-2017:
+- Recent change in agricultural profits, 2012-2017:
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to carolynkoehn\@u.boisestate.edu.
+
+\newpage
+#### Statement of original and referenced work:
+
+The entirety of this module is my original work.
