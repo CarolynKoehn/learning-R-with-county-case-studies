@@ -1,0 +1,55 @@
+---
+title: "Module 5 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## `ID_employment.csv`
+
+These data were retrieved using `tidycensus`.
+
+```{r}
+#| eval: false
+
+library(tidycensus)
+
+emply <- get_acs(geography = "county",
+                    state = "ID",
+                    year = 2017,
+                    survey = "acs5",
+                    table = "C24030")
+
+write.csv(emply, "data/ID_employment.csv")
+```
+
+## `ID_employment_codes.csv`
+
+These data were retrieved from `tidycensus` and simplified.
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+
+emply_codes <- load_variables(2017, "acs5") %>%
+  filter(str_detect(name, "C24030")) %>%
+  select(c(name, label)) %>%
+  rename("variable" = "name",
+         "variable_meaning" = "label") %>%
+  mutate(variable_meaning = str_remove(variable_meaning, "Estimate!!"))
+
+write.csv(emply_codes, "data/ID_employment_codes.csv", row.names = FALSE)
+```
+
+## `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`
+
+These data were downloaded from https://www.census.gov/data/tables/2017/demo/geographic-mobility/county-to-county-migration-2013-2017.html. The dataset is titled "In-, Out-, Net, and Gross Migration [33.5 MB]" under the heading "County-to-County Migration Flows.
+
+After downloading, I saved the Idaho tab as a CSV file.
+
+# Teaching notes
+
+- I had students add the data for their counties to a shared Google sheet so that students could compare their counties with others. You may wish to record data in a different way. If you do, you will want to find and replace mentions of the shared Google sheet throughout these modules.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
