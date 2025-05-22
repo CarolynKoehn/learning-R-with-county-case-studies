@@ -1,0 +1,111 @@
+---
+title: "Module 4 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## `num_farms_areafiltered_tenure_1997_2017_ID.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector:
+  - DEMOGRAPHICS
+  - ECONOMICS
+- Group: FARMS & LAND & ASSETS
+- Commodity: FARM OPERATIONS
+- Category: OPERATIONS
+- Data Item: FARM OPERATIONS - NUMBER OF OPERATIONS
+- Domain: 
+  - AREA OPERATED
+  - TENURE
+  - TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 
+  - 1997
+  - 2017
+
+And were cleaned with the following code:
+
+```{r}
+#| eval: false
+
+# data file downloaded from QuickStats
+size <- read.csv("data/num_farms_area_tenure_1997_2017_ID.csv") 
+
+size_filt <- 
+  dplyr::filter(size, 
+                Domain.Category %in% 
+                  unique(size[which(size$Year == 1997), "Domain.Category"]))
+
+write.csv(size_filt, "data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
+```
+
+## `cropland_pastureland_total_acres_ID_1997-2017.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: ECONOMICS
+- Group: FARMS & LAND & ASSETS
+- Commodity: 
+  - AG LAND
+  - LAND AREA
+- Category: AREA   
+- Data Item: 
+  - AG LAND, CROPLAND - ACRES
+  - AG LAND, PASTURELAND - ACRES
+  - LAND AREA, INCL NON-AG - ACRES
+- Domain: TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 2017
+
+## `ag_sales_ID_1997-2017.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: ECONOMICS
+- Group: INCOME
+- Commodity: COMMODITY TOTALS
+- Category: SALES
+- Data Item: COMMODITY TOTALS - SALES, MEASURED IN $
+- Domain: FARM SALES
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 
+  - 1997
+  - 2002
+  - 2007
+  - 2012
+  - 2017
+  
+## `ag_expenses_ID_1997-2017.csv`
+
+These data were downloaded from the [USDA NASS QuickStats tool](https://quickstats.nass.usda.gov/) with the following parameters:
+
+- Program: CENSUS
+- Sector: ECONOMICS
+- Group: EXPENSES
+- Commodity: EXPENSE TOTALS
+- Category: EXPENSE
+- Data Item: EXPENSE TOTALS, OPERATING - EXPENSE, MEASURED IN $
+- Domain: TOTAL
+- Geographic Level: COUNTY
+- State: IDAHO
+- Year: 
+  - 1997
+  - 2002
+  - 2007
+  - 2012
+  - 2017
+
+# Teaching notes
+
+- The most difficult concept in this module seems to be joining. It is helpful to go over the joins figure in person, even before students begin the module. This is especially helpful if students have printed black and white copies, because the colors in the figure are helpful.
+- I had students add the data for their counties to a shared Google sheet so that students could compare their counties with others. You may wish to record data in a different way. If you do, you will want to find and replace mentions of the shared Google sheet throughout these modules.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.

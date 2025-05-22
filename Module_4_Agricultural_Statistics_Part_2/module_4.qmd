@@ -72,6 +72,8 @@ total_farms_2017 <- subset(my_county_size_tenure_2017, Domain == 'TOTAL')$Value
 total_farms_1997 <- subset(my_county_size_tenure_1997, Domain == 'TOTAL')$Value
 ```
 
+**\textcolor{orange}{(`r cont_count()`)}** Print the number of farms in your county in 2017 and add it to the shared Google sheet.
+
 **\textcolor{orange}{(`r cont_count()`)}** Subtract the number of farms in 1997 from the number of farms in 2017. Record the result in the shared Google sheet. A negative number indicates a loss of farms.
 
 ```{r}
@@ -321,7 +323,7 @@ plot(x = my_county_land_join$Year,
 
 The metrics we will use to characterize this change over time are total change over 20 years and recent change from 2012 to 2017. **\textcolor{orange}{Optional: (`r i`.2)}** Do you see any trends in your plot that you think might be important that are not described by these two metrics? If so, please make note of it here so we can improve our research design.
 
-**\textcolor{orange}{(`r cont_count()`)}** Use the format `data_frame[row_number, "column_name"]` to subtract the percentage of agricultural land in 1997 from the percentage of agricultural land in 2017 to find total change from 1997 to 2017. Record the value in the shared data sheet.
+**\textcolor{orange}{(`r cont_count()`)}** Use the format `data_frame[row_number, "column_name"]` in an equation to subtract the percentage of agricultural land in 1997 from the percentage of agricultural land in 2017 to find total change from 1997 to 2017. Record the value in the shared data sheet.
 
 Now, we are going to do the same calculation for each year so we can get the percent change of agricultural land in 5 year increments. The easiest way to refer to the previous year's value is to create a _lag_ column. This will line up the values we want to subtract from each other. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to create a new column called `Perc_lag` that contains the values of the column `Perc_ag` shifted down one cell.
 
@@ -409,6 +411,7 @@ _______$______ <- lag(_______$______,
 **\textcolor{orange}{(`r cont_count()`)}** At the end of your report, copy this list and paste it outside of a code chunk to create bullet points. Fill in the data you calculated for your county. Make sure that all of this information is also in the team Google Sheet for comparison with other counties. If you calculated anything extra that not on this list, be sure to add it so you have a record for later.
 
 ```{r, eval=FALSE}
+- Number of farms in 2017:
 - Change in number of farms, 1997-2017:
 - Percent change of farms, 1997-2017:
 - Change in number of full-owned farms, 1997-2017:
