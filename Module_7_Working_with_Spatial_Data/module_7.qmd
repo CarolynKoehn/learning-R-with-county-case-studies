@@ -20,6 +20,8 @@ In the last modules, we made calculations based on data from many data tables an
 ```{r}
 #| include: false
 
+# continuous count function for handout numbering
+
 cont_count <- function () {
    assign("i", i+1, envir = .GlobalEnv)
   return(i)
@@ -31,7 +33,7 @@ i=1
 
 ### Getting Started
 
-I will help you through the most important spatial concepts for this project, but there are a lot of important topics I can't address through the VIP course. If you have not encountered spatial data before, I highly encourage you to read through the Introduction to Spatial Concepts lessons at [https://datacarpentry.org/organization-geospatial/index.html](https://datacarpentry.org/organization-geospatial/index.html).
+This activity will help you through the most important spatial concepts for this specific project, but there are a lot of important topics that can't be addressed here. If you have not encountered spatial data before, I highly encourage you to read through the Introduction to Spatial Concepts lessons at [https://datacarpentry.org/organization-geospatial/index.html](https://datacarpentry.org/organization-geospatial/index.html).
 
 If you are interested in using R for spatial data beyond this project, I encourage you to look into some of the many available online resources for learning to work with spatial data. Please note that some of these resources will teach you different coding approaches than the ones presented here.
 
@@ -41,7 +43,7 @@ If you are interested in using R for spatial data beyond this project, I encoura
 
 3. Developers of the packages we work with have posted explanations and examples online to help people use their code. Articles about `sf` can be found at [https://r-spatial.github.io/sf/articles](https://r-spatial.github.io/sf/articles) and articles about `terra` can be found at [https://rspatial.org/index.html](https://rspatial.org/index.html).
 
-**\textcolor{orange}{(`r i`)}** Open RStudio by double-clicking the project file you created in the last module. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file (refer to the "Create a Quarto Document" section in the first module).
+**\textcolor{orange}{(`r i`)}** Open RStudio and your R project. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
 
 ### Vector Data in sf
 
@@ -57,7 +59,7 @@ For this project, we can think of vector data as a polygon or a set of polygons.
 
 **\textcolor{orange}{(`r cont_count()`)}** Install the `sf` package with `install.packages` in the Console. **\textcolor{orange}{(`r cont_count()`)}** Create a code chunk and read in the `sf` package using `library`.
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a vector data object called `nc` and read in the built-in data using the function `st_read`. This data provides information about the counties of North Carolina.
+**\textcolor{orange}{(`r cont_count()`)}** Create a vector data object called `nc` and read in the built-in data using the function `st_read`. This data provides information about the counties of North Carolina. We use `system.file` because this is a dataset that comes downloaded with the `sf` package.
 
 ```{r}
 #| eval: false
@@ -67,7 +69,9 @@ nc <- st_read(system.file("shape/nc.shp", package="sf"))
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the `head` of `nc`.
 
-You should notice that `sf` objects are very similar to data frames, with some key differences. First, there's a header to the table with information like geometry type, dimension, bounding box, and geodetic CRS. Second, the last column is a special column type called `geometry` that holds the locations of all the points that make up the polygons. All the information in the data frame is connected to a polygon.
+You should notice that `sf` objects are very similar to data frames, and we can use the same data cleaning techniques we used in other modules with this type of data. 
+
+However, there are a few key additions that make this data spatial. First, there's a header to the table with information like geometry type, dimension, bounding box, and geodetic CRS. Second, the last column is a special column type called `geometry` that holds the locations of all the points that make up the polygons. All the information in the data frame is connected to a polygon.
 
 **\textcolor{orange}{(`r cont_count()`)}** To plot the shapes with no extra information, use `st_geometry` inside the `plot` function.
 ```{r}
@@ -91,11 +95,9 @@ plot(nc["AREA"])
 
 You can use this function to get a quick look at how a certain column of information is distributed spatially.
 
-You can do a lot more with vector data than this, but for this project, we will not use it much. The main purpose of vector data for us is to use the shape of our case study county to crop the other type of spatial data, a raster.
-
 ### Raster Data in terra
 
-While vector data stores data about each shape, raster data stores data in pixels. For example, a satellite image is a raster. It stores data about the color of the land in each pixel. The data we will use in this project is often derived from satellites, so we will generally work with raster data.
+While vector data stores data about each shape, raster data stores data in pixels. For example, a satellite image is a raster. It stores data about the color of the land in each pixel.
 
 The package we use for raster data is called `terra`. **\textcolor{orange}{(`r cont_count()`)}** Install the `terra` package with `install.packages` in the Console. **\textcolor{orange}{(`r cont_count()`)}** Create a code chunk and read in the `terra` package using `library`.
 
@@ -105,7 +107,7 @@ The package we use for raster data is called `terra`. **\textcolor{orange}{(`r c
 library(terra)
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a raster data object called `elev` and read in the built-in data using the function `rast`. This data provides information about the elevation above sea level of Luxembourg.
+**\textcolor{orange}{(`r cont_count()`)}** Create a raster data object called `elev` and read in the built-in data using the function `rast`. This data provides information about the elevation above sea level of Luxembourg. Again, we use `system.file` because this is a dataset that comes downloaded with `terra`.
 
 ```{r}
 elev <- rast(system.file("ex/elev.tif", package="terra"))
@@ -200,13 +202,13 @@ county_object <- i
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot your county object (hint: refer to step `r i-3`).
 
-**\textcolor{orange}{(`r cont_count()`)}** Download raster data for land value from the shared Google Drive 
-(Nolte_2020_fair_market_value_ID.tif) into your `data` folder.
+**\textcolor{orange}{(`r cont_count()`)}** Download raster data for land value from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/5f05de13db1a10cda6b3de3b465373d0aab7871e/Module_7_Working_with_Spatial_Data/data) 
+(fair_market_land_value_Idaho_2020.tif) into your `data` folder.
 
 **\textcolor{orange}{(`r cont_count()`)}** Read the data into your `R` session with the `rast` function.
 
 ```{r}
-land_value <- rast("data/Nolte_2020_fair_market_value_ID.tif")
+land_value <- rast("data/fair_market_land_value_Idaho_2020.tif")
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot the raster.
@@ -251,7 +253,7 @@ land_value_mask <- mask(x = land_value_crop,
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot your masked raster. Notice that the boundaries of the raster match those of your county.
 
-Under the hood, you can think of a raster as a giant matrix and every pixel is a number in a giant matrix of numbers, but with extra spatial information attached. We plot these numbers as colors, but we can also do math with these numbers. 
+Under the hood, you can think of a raster as a giant table of numbers, and every pixel one of those numbers, but with extra spatial information attached. We plot these numbers as colors, but we can also do math with these numbers. 
 
 First, let's transform the data into dollars per hectare instead of the natural log. We can add mathematical operations to a raster just as we would to a vector of numbers. To reverse a natural log ($ln(x)$), we use the inverse function $e^x$. The `R` function for this equation is `exp()`.
 
@@ -262,15 +264,15 @@ land_value_mask_trans <- exp(land_value_mask)
 ```
 
 
-**\textcolor{orange}{(`r cont_count()`)}** Calculate the average land value for your county. Add brackets (`[]`) behind the raster object to tell `R` to treat the raster as a matrix of numbers, and set `na.rm` to true so that `R` ignores the pixels we masked out.
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the average land value for your county. Use the `values(land_value_mask_trans)` function to tell `R` to just analyze the numbers in the raster we called `land_value_mask_trans`, and set `na.rm` to true so that `R` ignores the pixels we masked out.
 
 ```{r}
-avg_land_value <- mean(land_value_mask_trans[], na.rm=TRUE)
+avg_land_value <- mean(values(land_value_mask_trans), na.rm=TRUE)
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Round the average land value to zero decimal places and add the result to the shared Google Sheet.
 
-**\textcolor{orange}{(Bonus: `r i`.1)}** Calculate the `median()` land value and `quantile()` information as well and include it in this report. It would be good to check if there are high land values skewing the mean and if there are other metrics we should record. Don't forget the brackets after the raster name.
+**\textcolor{orange}{(Bonus: `r i`.1)}** Calculate the `median()` land value and `quantile()` information as well and include it in this report. It would be good to check if there are high land values skewing the mean and if there are other metrics we should record. Don't forget to use the `values()` function.
 
 ### Finishing up
 
@@ -280,13 +282,16 @@ avg_land_value <- mean(land_value_mask_trans[], na.rm=TRUE)
 - Avg land value, 2020:
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to carolynkoehn\@u.boisestate.edu.
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to [ INSERT EMAIL HERE ].
 
 \newpage
 #### Statement of original and referenced work:
 
-The entirety of this module is my original work.
+The entirety of this module is original work authored by Carolyn Koehn.
 
+#### License
+
+This module is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ```{r, include=FALSE, eval=FALSE}
 # from footprint data (global) (0-50 range)
