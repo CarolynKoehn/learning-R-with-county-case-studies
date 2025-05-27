@@ -1,0 +1,457 @@
+---
+title: "Spatial Data: Land Cover and Management"
+format: pdf
+---
+
+In the last module, we used the `sf` and `terra` packages to work with vector and raster spatial data. We calculated summary statistics by using `values()` to treat a cropped raster as a matrix. Now, we will continue doing raster calculations to explore landscape metrics across space and time.
+
+### Objectives
+
+1. Use spatial summary statistics to calculate average agricultural quality.
+
+2. Crop vector data and calculate land management percentages.
+
+3. Use `freq` to calculate land cover percentages.
+
+```{r}
+#| include: false
+
+# continuous count function for handout numbering
+
+cont_count <- function () {
+   assign("i", i+1, envir = .GlobalEnv)
+  return(i)
+}
+i=1
+
+library(terra)
+library(sf)
+```
+
+\newpage
+
+### Getting Started
+
+**\textcolor{orange}{(`r i`)}** Open RStudio and your R project file. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
+
+### Get your County Boundary
+
+**\textcolor{orange}{(`r cont_count()`)}** Read the `sf` and `tigris` libraries into your Quarto document.
+
+**\textcolor{orange}{(`r cont_count()`)}** Get a vector of all the counties in Idaho.
+
+```{r}
+#| eval: false
+
+idaho <- counties(state = "ID")
+```
+```{r}
+#| include: false
+
+library(tigris)
+library(sf)
+
+idaho <- counties(state = "ID", progress_bar = FALSE)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a `subset` of `idaho` to create a one-row data frame for your county.
+
+```{r}
+#| include: false
+
+bear_lake <- subset(idaho, NAME == "Bear Lake")
+county_object <- i
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot your county using `st_geometry` to make sure it looks right.
+
+### Agricultural Land Quality
+
+The American Farmland Trust has create a raster of agricultural land quality that takes three metrics into account: productivity, versatility, and resilience [PVR] (more information [here](https://csp-fut.appspot.com/downloads/AFT_FUT_PVR_Fact_Sheet.pdf)). They combined these metrics into a unitless measure that varies from 0-1, with 1 being the highest agricultural land quality.
+
+**\textcolor{orange}{(`r cont_count()`)}** Load the `terra` library and the PVR land quality raster (productivity_versatility_resiliency_2016_ID.tif) into your `R` session.
+
+```{r}
+#| eval: false
+
+library(______)
+
+pvr <- rast("_______________")
+```
+```{r}
+#| include: false
+
+pvr <- rast("data/productivity_versatility_resiliency_2016_ID.tif")
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot the raster with `plot()`.
+
+```{r}
+#| eval: false
+
+plot(pvr)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the CRS of your county polygon. If it's not the same as the raster's CRS, use `st_transform` to re-project it.
+
+```{r}
+#| eval: false
+
+my_county_proj <- st_transform(_________,
+                               crs = st_crs(___))
+```
+```{r}
+#| include: false
+
+my_county_proj <- st_transform(bear_lake,
+                               crs = st_crs(pvr))
+proj_step <- i
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** `plot` the `st_geometry` of your county to make sure it looks right.
+
+**\textcolor{orange}{(`r cont_count()`)}** Use the `crop` function to crop the PVR raster to your county.
+
+```{r}
+#| eval: false
+
+pvr_crop <- crop(x = ________,
+                 y = ________)
+```
+```{r}
+#| include: false
+
+pvr_crop <- crop(pvr, my_county_proj)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Mask your cropped raster to your county polygon.
+
+```{r}
+#| eval: false
+
+pvr_mask <- mask(x = ________,
+                 mask = ________)
+```
+```{r}
+#| include: false
+
+pvr_mask <- mask(pvr_crop, my_county_proj)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot your masked raster. Don't worry if it doesn't entirely fill the county. There are no agricultural quality values on developed land or federal land, and there are a lot of both (especially federal land) in Idaho.
+
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the average agricultural quality for your county.
+
+```{r}
+#| eval: false
+
+avg_ag_quality <- ____(values(______), na.rm=TRUE)
+```
+```{r}
+#| include: false
+
+avg_ag_quality <- mean(values(pvr_mask), na.rm=TRUE)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Round the average agricultural quality to two decimal places and record it in the shared Google sheet.
+
+### Land Management
+
+The share of land in a county that is managed by federal, state, or private entities could play a role in the type of farmland change we observe in a county. We will be using vector data from the Bureau of Land Management.
+
+**\textcolor{orange}{(`r cont_count()`)}** Download vector data for land management from the shared Google Drive 
+(BLM_ID_Surface_Management_Agency_Hub.zip) into your `data` folder. **\textcolor{orange}{(`r cont_count()`)}** Unzip the data into your `data` folder. You can unzip the data in your file explorer if that's what you're used to, or you can use the following code in your _Console_: `unzip("data/BLM_ID_Surface_Management_Agency_Hub.zip", exdir="data")`.You should see four files with the file extensions `.shp`, `.shx`, `.dbf`, and `.prj` (there may be extra files, but these are the ones we will use in `R`).
+
+**\textcolor{orange}{(`r cont_count()`)}** Read the data into your Quarto file with the `st_read` function from the `sf` library. You will put the file pathway to the `.shp` file, but the other files mentioned in step (`r i-1`) must be in the same location as the `.shp` file, or this function will fail.
+
+```{r}
+land_managers <- st_read("data/RLTY_SMA_PUB_24K_POLY.shp")
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Preview the data using `head`.
+
+**\textcolor{orange}{(Optional: `r i`.1)}** To get a spatial preview of the data, plot a map of the data with one of the columns as a category. If you copy this code into the Console and run it so it previews in the Plots tab, you can use the Zoom button in the Plots tab to get a full screen preview and see more detail.
+
+```{r}
+plot(land_managers["AGNCY_NAME"])
+```
+```{r}
+#| include: false
+
+plot_vector_cat <- i
+```
+
+
+To get only the land management polygons for your county, we need to find the polygons that _intersect_ your county polygon using `st_intersection`. There are many more operations like this in the `sf` package. You can find a cheat sheet of examples [here](https://ugoproto.github.io/ugo_r_doc/pdf/sf.pdf).
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the CRS of the `land_managers` object and your county polygon. If they do not match, use `st_transform` on your county polygon so that it matches the land management data. We transform the single polygon because it will take less time than transforming all the land management polygons. (See step (`r proj_step`) if needed.)
+
+```{r}
+#| include: false
+
+bear_lake_proj <- st_transform(bear_lake, st_crs(land_managers))
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `st_intersection` to get the land management polygons cropped to your county. The `x` argument is the object you want to extract polygons from, while the `y` object is the cropping boundary (in this case, your transformed county object).
+
+```{r}
+#| warning: false
+
+bear_lake_mgmt <- st_intersection(x = land_managers,
+                                  y = bear_lake_proj)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `plot` to map the management agencies in your county (see step (`r `plot_vector_cat`.1), use the AGNCY_NAME column as it has no `OTHER` category).
+
+```{r}
+#| eval: false
+
+plot(_________["_______"])
+```
+
+There are a lot of management agencies included in this dataset. For this project, we will put them in the following categories:
+
+1. Private: PRIVATE
+2. State: STATE, STATEFG (State Fish and Game), STATEPR (State Parks and Recreation)
+3. Tribal: BIA (Bureau of Indian Affairs), IR (Indian Reservation)
+4. Federal: All other codes -- BLM (Bureau of Land Management), BOR (Bureau of Reclamation), COE (US Corps of Engineers), DOE (Department of Energy), DOI (Department of the Interior), FAA (Federal Aviation Administration), FHA (Federal Housing Administration), GSA (General Services Administration), LU_DOI (Bankhead Jones lands managed by the BLM), LU_USDA (National Grasslands managed by USFS), MIL (military), NPS (National Park Service), NWR (National Wildlife Service), USDA (US Department of Agriculture), USFS (US Forest Service)
+5. Other: HSTRCWTR (unsurveyed water)
+
+We used `ifelse` statements to create categories in Module 3, and we can use the same process here since we are still working with a type of `data.frame`.
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column in your county's land management polygons object called `Mgmt_Category` and fill it with `NA`s.
+
+```{r}
+bear_lake_mgmt$Mgmt_Category <- NA
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** If `AGNCY_NAME` is `PRIVATE`, set `Mgmt_Category` to `Private`. Else, let `Mgmt_Category` remain unchanged.
+
+```{r}
+bear_lake_mgmt$Mgmt_Category <- ifelse(
+  test = bear_lake_mgmt$AGNCY_NAME == "PRIVATE",
+  yes = "Private",
+  no = bear_lake_mgmt$Mgmt_Category)
+```
+
+**\textcolor{orange}{Optional: (`r i`.1)}** Use `View(your_county_mgmt)` to open your data in a new tab. Scroll to see if your `ifelse` statement correctly filled in some rows of your `Mgmt_Category` column.
+
+**\textcolor{orange}{(`r cont_count()`)}** If `AGNCY_NAME` is `HSTRCWTR`, set `Mgmt_Category` to `Other`. Else, let `Mgmt_Category` remain unchanged.
+
+**\textcolor{orange}{(`r cont_count()`)}** If `AGNCY_NAME` _contains_ the characters `STATE`, set `Mgmt_Category` to `State`. Else, let `Mgmt_Category` remain unchanged. (Hint: use `str_detect` from the `stringr` package in your `test`. Refer to Module 3 (34).) 
+
+**\textcolor{orange}{(`r cont_count()`)}** Finally, if `Mgmt_Category` is still `NA`, set its value to `Federal` (hint: use `is.na()` in your `test`).
+
+```{r}
+#| include: false
+
+library(stringr)
+
+bear_lake_mgmt$Mgmt_Category <- ifelse(bear_lake_mgmt$AGNCY_NAME == "PRIVATE", "Private",
+                            ifelse(bear_lake_mgmt$AGNCY_NAME %in% c("BIA", "IR"), "Tribal",
+                              ifelse(bear_lake_mgmt$AGNCY_NAME %in% c("OTHER", "HSTRCWTR"), "Other",
+                                ifelse(str_starts(bear_lake_mgmt$AGNCY_NAME, "STATE"), "State", "Federal"))))
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Use `plot` to map the `Mgmt_Category` column (see step (`r plot_vector_cat`.1). Based on your previous map, do the categories look as expected?
+
+This dataset has a column called `GIS_ACRES_`, which is the acreage of each management polygon. To find the percent of county land managed by each category, we will `aggregate` the `GIS_ACRES_` column by the `Mgmt_Category` column to find the total acreage of each category, then divide by the total county acreage and multiply by 100 to get the percent of land that each category manages.
+
+**\textcolor{orange}{(`r cont_count()`)}** Save the total acres for each management category in a new object. Print the results.
+
+```{r}
+#| eval: false
+
+mgmt_acres <- aggregate(_____ ~ ______, data = _______, FUN = ___)
+```
+```{r}
+#| include: false
+
+mgmt_acres <- aggregate(GIS_ACRES_ ~ Mgmt_Category, data = bear_lake_mgmt, FUN = sum)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `Percent_land` which contains the percent of your county's land that each category manages. Print your result.
+
+**\textcolor{orange}{(`r cont_count()`)}** Add percent management data to the shared Google Sheet.
+
+### Land Cover
+
+**\textcolor{orange}{(`r cont_count()`)}** Download raster data for land use from the shared Google Drive 
+
+(land_cover_and_use_2016_Idaho_5070_30m.tif) into your `data` folder.
+
+This dataset was created by American Farmland Trust (more information [here](https://development2040.farmland.org)). It is an agriculture specific land use map that focuses on different types of farmland and the presence of low density residential development, which is often a precursor for agricultural land loss.
+
+**\textcolor{orange}{(`r cont_count()`)}** Read the data into your `R` session with the `rast` function.
+
+```{r}
+land_use <- rast("data/land_cover_and_use_2016_Idaho.tif")
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot the raster.
+
+In this raster, each numeric code corresponds to a land use type. The default plotting option makes this a pretty meaningless graph. However, we can't fix this until we reduce the amount of data in the raster. If we tried to manipulate this large raster with (fairly) small pixels, we might crash our `R` session. First, we'll crop this raster to our county to make analysis easier and faster.
+
+**\textcolor{orange}{(`r cont_count()`)}** Check the CRS of the raster. If the CRS of your county polygon doesn't match the CRS of your raster, use `st_transform` to re-project it.
+
+```{r}
+#| include: false
+
+bear_lake_proj <- st_transform(bear_lake, 
+                               crs = st_crs(land_use))
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Use the `crop` function with the Idaho land use raster and your county polygon.
+
+```{r}
+#| include: false
+
+land_use_crop <- crop(x = land_use,
+                      y = bear_lake_proj)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Mask your _cropped_ raster to your county polygon object.
+
+```{r}
+#| include: false
+
+land_use_mask <- mask(x = land_use_crop,
+                      mask = bear_lake_proj)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot your masked raster.
+
+Now that we've cropped our raster, it is small enough to do some calculations with. Doing calculations on large amounts of spatial data can cause `R` to crash, which is why our first step was to reduce the amount of data analyzed by cropping.
+
+The first thing to address is the data values. This is a categorical raster where each number corresponds to a land cover. We need to manually tell `R` what those land covers are. The American Farmland Trust has a metadata file that says the land cover codes, the corresponding class, and a suggested color for each class, which is translated into the `data.frame` below.
+
+**\textcolor{orange}{(`r cont_count()`)}** Copy the categorizing data frame below and paste it into your document.
+
+\newpage
+```{r}
+land_use_cats <- 
+  data.frame(value = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12,
+                       1101, 1102, 1103, 1104, 1105,
+                       1106, 1107, 1108, 1109, 1110, 1112),
+             class = c("Cropland", "Pastureland", "Rangeland",
+                       "Forestland", "Woodland", 
+                       "Urban and highly developed areas", 
+                       "Water", "Federal lands without grazing",
+                       "Federal lands with grazing", "Other areas",
+                       "Transportation", "Cropland within LDR",
+                       "Pastureland within LDR", 
+                       "Rangeland within LDR", 
+                       "Forestland within LDR", 
+                       "Woodland within LDR", 
+                       "UHD areas within LDR", 
+                       "Water within LDR", 
+                       "Federal lands without grazing within LDR",
+                       "Federal lands with grazing within LDR", 
+                       "Other areas within LDR", 
+                       "Transportation within LDR"),
+             color = c("#02682c", "#61aa36", "#e2c85f", "#ac9e8d",
+                       "#564F46", "#601818", "#75a8ea", "#e2e2d5",
+                       "#d8d7a9", "#f2f1dc", "#ab3c09", "#02682c",
+                       "#61aa36", "#e2c85f", "#ac9e8d", "#564F46",
+                       "#601818", "#75a8ea", "#e2e2d5", "#d8d7a9",
+                       "#f2f1dc", "#ab3c09"))
+```
+
+"LDR" stands for low density residential, a type of development that can lead to more residential development and accelerated farmland loss.
+
+The categories of a raster are called "levels" in `terra`. To apply our labels, we need to indicate that the data frame above has information about what each number means in our raster.
+
+**\textcolor{orange}{(`r cont_count()`)}** Apply the categorization table to your cropped and masked raster by designating the `value` and `class` columns of our data frame as the levels of the raster.
+
+```{r}
+levels(land_use_mask) <- land_use_cats[ , c("value", "class")]
+```
+
+AFT also provided a suggested color range to apply to our raster to make nicer maps. Similarly to assigning a label to each number, we can assign a color to each number by designating the raster's `coltab` (color table).
+
+**\textcolor{orange}{(`r cont_count()`)}** Designate a `coltab` for your cropped and masked raster using the `value` and `color` columns of the categorization table.
+
+```{r}
+coltab(land_use_mask) <- land_use_cats[ , c("value", "color")]
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Plot your raster. It should be much more understandable now that we've assigned the correct metadata!
+
+Finally, we want to know the composition of land use for your county. The `freq` function calculates the frequency of each type of pixel in a raster. Dividing each category's pixel count by the total number of pixels in the raster will give us the percentage of that land cover for that county. 
+
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the frequency of pixels in each category and print the result.
+
+```{r}
+land_use_freq <- freq(land_use_mask)
+
+print(land_use_freq)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the sum of the `count` column in the frequency table you generated to find the total number of pixels and save it in an object called `total_px`.
+
+```{r}
+#| eval: false
+
+total_px <- sum(___________)
+```
+```{r}
+#| include: false
+
+total_px <- sum(land_use_freq$count)
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column in your frequency table that contains the `count` column divided by the total pixels value and multiplied by 100. This column is the percent of each land cover in your county.
+
+```{r}
+land_use_freq$percent_cover <- land_use_freq$count / total_px *100
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Round the percent cover column to one decimal place with the `round` function and add the results to the shared Google Sheet (cropland,  pastureland, rangeland, forestland, urban/developed, federal lands without grazing, federal lands with grazing, cropland in LDR, pastureland in LDR, rangeland in LDR, forestland in LDR). I've omitted some categories, but if you think they're important for your county, please let me know!
+
+### Finishing up
+
+**\textcolor{orange}{(`r cont_count()`)}** At the end of your report, copy this list and paste it outside of a code chunk to create bullet points. Fill in the data you calculated for your county. Make sure that all of this information is also in the team Google Sheet for comparison with other counties. If you calculated anything extra that not on this list, be sure to add it so you have a record for later.
+
+```{r, eval=FALSE}
+- Average agricultural quality, 2016:
+- Percent federal land:
+- Percent private land:
+- Percent state land:
+- Percent cropland, 2016:
+- Percent pastureland, 2016:
+- Percent rangeland, 2016:
+- Percent forestland, 2016:
+- Percent urban/developed, 2016:
+- Percent federal lands without grazing, 2016:
+- Percent federal lands with grazing, 2016:
+- Percent cropland in LDR, 2016:
+- Percent pastureland in LDR, 2016:
+- Percent rangeland in LDR, 2016:
+- Percent forestland in LDR, 2016:
+```
+
+**\textcolor{orange}{(`r cont_count()`)}** Go back through your report and add short explanations for what each code chunk does in your own words if you haven't done so already. **\textcolor{orange}{(`r cont_count()`)}** Render your report to a PDF and email it to [ INSERT EMAIL HERE ].
+
+\newpage
+#### Statement of original and referenced work:
+
+The entirety of this module is original work authored by Carolyn Koehn.
+
+#### License
+
+This module is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
+
+```{r}
+#| include: false
+#| eval: false
+
+library(dplyr)
+library(sf)
+
+idaho <- tigris::states() %>%
+  filter(NAME == "Idaho")
+
+pvr <- rast("R:/SarahHalperin/Data/AFT_Data/productivity_versatility_resiliency_2016_conus_120m.tif")
+pvr_crop <- crop(pvr, st_transform(idaho, crs(pvr)), mask=TRUE)
+writeRaster(pvr_crop, "C:/Users/carolynkoehn/Desktop/Module 6/data/productivity_versatility_resiliency_2016_ID.tif")
+```
