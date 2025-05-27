@@ -1,0 +1,14 @@
+---
+title: "Module 7 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+
+
+# Teaching notes
+
+- I had students add the data for their counties to a shared Google sheet so that students could compare their counties with others. You may wish to record data in a different way. If you do, you will want to find and replace mentions of the shared Google sheet throughout these modules.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
