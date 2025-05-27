@@ -146,7 +146,7 @@ round(avg_ag_quality, digits=2)
 
 The share of land in a county that is managed by federal, state, or private entities could play a role in the type of farmland change we observe in a county. We will be using vector data from the Bureau of Land Management.
 
-**\textcolor{orange}{(`r cont_count()`)}** Download vector data for land management from the shared Google Drive 
+**\textcolor{orange}{(`r cont_count()`)}** Download vector data for land management from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/414fb9a0a4730753fb200a6822b4228169b6f959/Module_8_Spatial_Data_Land_Cover_and_Management/data) 
 (BLM_ID_Surface_Management_Agency_Hub.zip) into your `data` folder. **\textcolor{orange}{(`r cont_count()`)}** Unzip the data into your `data` folder. You can unzip the data in your file explorer if that's what you're used to, or you can use the following code in your _Console_: `unzip("data/BLM_ID_Surface_Management_Agency_Hub.zip", exdir="data")`.You should see four files with the file extensions `.shp`, `.shx`, `.dbf`, and `.prj` (there may be extra files, but these are the ones we will use in `R`).
 
 **\textcolor{orange}{(`r cont_count()`)}** Read the data into your Quarto file with the `st_read` function from the `sf` library. You will put the file pathway to the `.shp` file, but the other files mentioned in step (`r i-1`) must be in the same location as the `.shp` file, or this function will fail.
