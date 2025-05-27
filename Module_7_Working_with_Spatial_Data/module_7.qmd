@@ -294,15 +294,6 @@ The entirety of this module is original work authored by Carolyn Koehn.
 This module is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ```{r, include=FALSE, eval=FALSE}
-# from footprint data (global) (0-50 range)
-# geodata::footprint
-# test <- rast("data/wildareas-v3-2009-human-footprint_geo.tif")
-
-# takes a while
-#test2 <- rast("https://data.boisestate.edu/library/z_researchcomputing/gis/land_cover_and_use_2016_CONUS_30m.tif")
-# takes too long for the AFT conus data
-#testbl <- crop(test2, project(vect(bear_lake), test2), mask=TRUE)
-
 aoi <- idaho
 template <- rast(project(vect(aoi), "epsg:5070"))
 res(template) <- 30
@@ -315,10 +306,5 @@ landuse_id_5070m <- mask(landuse_id_5070, st_transform(aoi, "epsg:5070"))
 
 writeRaster(landuse_id_5070m, "R:/CarolynKoehn/Data_clipped/AFT_2040Projections/land_cover_and_use_2016_Idaho_5070_30m.tif", overwrite=TRUE)
 writeRaster(landuse_id, "G:/BSU/VIP/Module 6/data/land_cover_and_use_2016_Idaho.tif", datatype="INT2U")
-
-landval <- rast("R:/CarolynKoehn/Data_raw/Nolte 2020 Land Value/places_fmv_pnas_dryad/1 estimates/places_fmv_all.tif")
-aoi_proj <- project(vect(aoi), landval)
-landval_id <- crop(landval, aoi_proj, mask=TRUE)
-writeRaster(landval_id, "C:/Users/carolynkoehn/Desktop/Module 6/data/Nolte_2020_fair_market_value_ID.tif", overwrite=TRUE)
 ```
 

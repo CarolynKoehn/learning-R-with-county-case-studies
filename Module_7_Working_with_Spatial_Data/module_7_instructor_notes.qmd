@@ -6,9 +6,39 @@ format: pdf
 
 # Data
 
+Fair market value data for the United States were downloaded from https://datadryad.org/dataset/
+doi:10.5061/dryad.np5hqbzq9. The paper describing the model that generated these data is: [Nolte, C. (2020). High-resolution land value maps reveal underestimation of conservation costs in the United States. Proceedings of the National Academy of Sciences, 117(47), 29577-29583.](https://doi.org/10.1073/pnas.2012865117)
+
+These data were re-projected and cropped to Idaho with the following code:
+
+```{r}
+#| eval: false
+
+# load libraries
+library(tidyverse)
+library(sf)
+
+# create template to project to
+aoi <- tigris::states() %>%
+  filter(NAME == "Idaho")
+template <- rast(project(vect(aoi), "epsg:5070"))
+res(template) <- 30
+
+# read in original data, downloaded and unzipped
+landval <- rast("data/places_fmv_pnas_dryad/1 estimates/places_fmv_all.tif")
+# project aoi shapefile to correct CRS
+aoi_proj <- project(vect(aoi), landval)
+# crop and mask raster to area of interest
+landval_id <- crop(landval, aoi_proj, mask=TRUE)
+# write raster with smallest possible bytes per pixel
+writeRaster(landval_id, 
+            "data/fair_market_land_value_Idaho_2020.tif", 
+            datatype = "FLT4S")
+```
 
 
 # Teaching notes
 
+- At this point, the modules begin to follow the specific interests of the students involved in this research project. All students who completed this module had taken at least one GIS course and were interested in analyzing spatial data. If teaching to students who are completely new to spatial data, I recommend teaching in person to make sure students have a chance to ask questions as they move through these new concepts.
 - I had students add the data for their counties to a shared Google sheet so that students could compare their counties with others. You may wish to record data in a different way. If you do, you will want to find and replace mentions of the shared Google sheet throughout these modules.
 - I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
