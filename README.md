@@ -76,7 +76,7 @@ Objectives:
 2. Use the `terra` package to explore and visualize raster data.
 3. Use `sf` and `tigris` to retrieve a shapefile of a case study county.
 4. Use a shapefile to crop a raster.
-5. Calculate the frequency of each category in a categorical raster.
+5. Calculate summary statistics for a raster.
 
 ## Module 8: Spatial Data, Part 2
 

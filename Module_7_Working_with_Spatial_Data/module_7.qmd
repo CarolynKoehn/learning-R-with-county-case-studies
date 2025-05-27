@@ -15,7 +15,7 @@ In the last modules, we made calculations based on data from many data tables an
 
 4. Use a shapefile to crop a raster.
 
-5. Calculate the frequency of each category in a categorical raster.
+5. Calculate summary statistics for a raster.
 
 ```{r}
 #| include: false
