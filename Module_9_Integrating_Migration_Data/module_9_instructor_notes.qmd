@@ -1,0 +1,94 @@
+---
+title: "Module 9 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## `county-to-county-2016-2020-ID-newcolnames.csv`
+
+The raw data sheet is County to County Migration Flows: 2016 to 2020 ACS downloaded from https://www.census.gov/topics/population/migration/guidance/county-to-county-migration-flows.html. The data were cleaned with the following code:
+
+```{r}
+#| eval: false
+
+migration <- readxl::read_excel(
+  "R:/CarolynKoehn/Data_raw/US Census/county-to-county-2016-2020-current-residence-sort.xlsx",
+                                sheet="Idaho")
+
+mcols <- vector("character", length=ncol(migration))
+
+high_level <- NA
+for(i in 1:length(mcols)) {
+  mid_level <- NA
+  low_level <- NA
+  
+  if(!is.na(migration[1,i])) {
+    high_level <- migration[1,i]
+  } # else high_level stays the same (last non-NA cell)
+  
+  if(!is.na(migration[2,i])) {
+    mid_level <- migration[2,i]
+  } else if (!is.na(migration[3,i]) & migration[3,i]=="MOE") {
+    mid_level <- migration[2,i-1]
+  }
+  
+  if(!is.na(migration[3,i])) {
+    low_level <- migration[3,i]
+  }
+  
+  mcols[i] <- ifelse(i>36, paste(high_level, low_level, sep="_"),
+                     ifelse(is.na(mid_level), high_level,
+                     ifelse(is.na(low_level), 
+                            paste(high_level, mid_level, sep="_"),
+                            paste(high_level, mid_level, low_level, sep="_"))))
+}
+
+migration2 <- readxl::read_excel(
+  "R:/CarolynKoehn/Data_raw/US Census/county-to-county-2016-2020-current-residence-sort.xlsx",
+                                sheet="Idaho",
+                                skip=3)
+colnames(migration2) <- mcols
+
+write.csv(migration2, "data/county-to-county-2016-2020-ID-newcolnames.csv")
+```
+
+## Land cost
+
+Fair market value data for the United States were downloaded from https://datadryad.org/dataset/
+doi:10.5061/dryad.np5hqbzq9. The paper describing the model that generated these data is: [Nolte, C. (2020). High-resolution land value maps reveal underestimation of conservation costs in the United States. Proceedings of the National Academy of Sciences, 117(47), 29577-29583.](https://doi.org/10.1073/pnas.2012865117)
+
+The data were compressed with the following code:
+
+```{r}
+#| eval: false
+
+library(terra)
+library(sf)
+library(dplyr)
+
+fmv_raw <- rast("/vsizip/data/places_fmv_pnas_dryad.zip/1 estimates/places_fmv_all.tif", 
+                drivers = "GTiff")
+
+conus <- tigris::states() %>%
+  filter(!(STUSPS %in% c("VI", "MP", "PR", "AK", "HI", "GU", "AS"))) %>%
+  st_transform(crs(fmv_raw))
+
+fmv_conus <- crop(fmv_raw, conus, mask=TRUE)
+
+writeRaster(fmv_conus, 
+            "data/Nolte_2020_fair_market_value_USA.tif",
+            datatype = "FLT4S", 
+            gdal = c("COMPRESS=DEFLATE", "PREDICTOR=3"))
+```
+
+## Household size
+
+These data are downloaded from `tidycensus` -- instructions are in the student module.
+
+# Teaching notes
+
+- At this point, the modules begin to follow the specific interests of the students involved in this research project. This module is tailored to a specific student's research questions, and is more focused on guiding them in the analysis than teaching specific concepts through repetition. The student who completed this module had taken at least one GIS course and were interested in analyzing spatial data.
+- These data were not added to a Google sheet because they were for an individual student's research project. This module is best completed if a student chooses a group of study counties that are in a certain region or meet some sort of criteria.
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
