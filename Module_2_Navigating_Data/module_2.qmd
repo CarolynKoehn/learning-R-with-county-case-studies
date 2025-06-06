@@ -330,7 +330,7 @@ my_county_ag_land <- subset(my_county_land,
 print(my_county_ag_land[, c("County", "Commodity", "Data.Item", "Value")])
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new subset for your county with rows where `Commoditiy` is total land area (use the other data value from `unique`) AND `Year` is 2017.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new subset for your county with rows where `Commodity` is total land area (use the other data value from `unique`) AND `Year` is 2017.
 
 ```{r}
 #| eval: false
