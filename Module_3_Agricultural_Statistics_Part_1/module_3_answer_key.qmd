@@ -85,7 +85,8 @@ print(my_county_producers[ ,c("Year", "County", "Data.Item", "Value")])
 **\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers. Then, save the `Value` column into a new object.) Print your object containing the total number of producers in your county.
 
 ```{r}
-total_producers <- subset(my_county_producers, Data.Item == "PRODUCERS, (ALL) - NUMBER OF PRODUCERS")
+total_producers <- subset(my_county_producers, 
+                          Data.Item == "PRODUCERS, (ALL) - NUMBER OF PRODUCERS")
 
 total_producers <- total_producers$Value
 ```
