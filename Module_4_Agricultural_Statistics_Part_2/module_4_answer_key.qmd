@@ -36,13 +36,6 @@ i=1
 
 ### Trends in farm size and ownership
 
-```{r}
-sizes <- read.csv("data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
-
-my_county_size_tenure <- subset(sizes, County == "BEAR LAKE")
-```
-
-
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `num_farms_ areafiltered_tenure_1997_2017_ID.csv`. We used this dataset in Module 3 -- it has information about the number of farms in different ownership and size categories. **\textcolor{orange}{(`r cont_count()`)}** Subset the data to your county. **\textcolor{orange}{(`r cont_count()`)}** Use two lines of code with the `unique` function to print the unique entries in the columns `Year` and `Domain`. For more clarity, you can click the subset in the Environment tab to display the whole data frame.
 
 ```{r}
@@ -271,43 +264,6 @@ print(my_county_sizes_agg)
 
 ### Agricultural Land Use Change
 
-```{r}
-#| include: false
-
-agland <- read.csv("data/cropland_pastureland_total_acres_ID_1997-2017.csv")
-
-my_county_agland <- subset(agland, County == "BEAR LAKE")
-
-my_county_agland$Value <- as.numeric(str_remove_all(my_county_agland$Value, ","))
-
-my_county_land <- subset(my_county_agland, str_detect(Data.Item, "NON-AG"))
-my_county_agland <- subset(my_county_agland, !str_detect(Data.Item, "NON-AG"))
-
-my_county_agland <- aggregate(Value ~ Year, data=my_county_agland, sum)
-
-my_county_land <- select(my_county_land, c(Year, Value))
-
-my_county_agland <- full_join(my_county_agland,
-                              my_county_land,
-                              by="Year",
-                              suffix = c("_ag", "_total"))
-
-my_county_agland$Value_total[1] <- my_county_agland$Value_total[2]
-
-my_county_agland$Perc_ag <- my_county_agland$Value_ag / my_county_agland$Value_total * 100
-
-my_county_land_join <- my_county_agland
-
-my_county_agland$Perc_ag_lag <- lag(my_county_agland$Perc_ag)
-my_county_agland$rate <- my_county_agland$Perc_ag - my_county_agland$Perc_ag_lag
-
-mean(my_county_agland$rate, na.rm=TRUE)
-my_county_agland$Perc_ag[5] - my_county_agland$Perc_ag[1]
-
-my_county_land_join <- my_county_agland
-```
-
-
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `cropland_ pastureland_total_acres_ID_1997-2017.csv`. We used this dataset in Module 2 -- it has information about the amount of land used for cropland, pastureland, and the total land in each county. **\textcolor{orange}{(`r cont_count()`)}** Subset the data to your county. **\textcolor{orange}{(`r cont_count()`)}** Use two lines of code with the `unique` function to print the unique entries in the columns `Year` and `Data.Item`. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
 
 ```{r}
@@ -345,6 +301,13 @@ print(my_county_land)
 **\textcolor{orange}{(`r cont_count()`)}** To prepare this data for joining, `aggregate` or `summarise` (your choice) the `Value` column by `Year`.
 
 ```{r}
+#| eval: false
+
+# summarise
+my_county_land <- summarise(my_county_land, .by=Year, 
+                            Value = sum(Value, na.rm=TRUE))
+
+# aggregate
 my_county_land <- aggregate(Value ~ Year, data = my_county_land, sum)
 ```
 
@@ -364,6 +327,14 @@ print(unique(my_county_agland$Data.Item))
 **\textcolor{orange}{(`r cont_count()`)}** Find the sum of cropland and pastureland acres in each year for your county. You can use `aggregate` or `summarise`. (Hint: find the sum of `Value` by `Year`.)
 
 ```{r}
+#| eval: false
+
+#summarise
+my_county_agland <- summarise(my_county_agland, .by = Year,
+                              Value = sum(Value, na.rm=TRUE))
+```
+```{r}
+# aggregate
 my_county_agland <- aggregate(Value ~ Year, data=my_county_agland, sum)
 ```
 
@@ -424,20 +395,39 @@ The metrics we will use to characterize this change over time are total change o
 
 **\textcolor{orange}{(`r cont_count()`)}** Use the format `data_frame[row_number, "column_name"]` in an equation to subtract the percentage of agricultural land in 1997 from the percentage of agricultural land in 2017 to find total change from 1997 to 2017. Record the value in the shared data sheet.
 
+```{r}
+my_county_land_join[5, "Perc_ag"] - my_county_land_join[1, "Perc_ag"]
+```
+
+
 Now, we are going to do the same calculation for each year so we can get the percent change of agricultural land in 5 year increments. The easiest way to refer to the previous year's value is to create a _lag_ column. This will line up the values we want to subtract from each other. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to create a new column called `Perc_lag` that contains the values of the column `Perc_ag` shifted down one cell.
 
 ```{r}
 my_county_land_join$Perc_lag <- lag(my_county_land_join$Perc_ag,
                                     n = 1)
-
-head(my_county_land_join)[, c("Year", "Perc_ag", "Perc_lag")]
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Check the results of this code by printing the `head` of your data frame or clicking the data frame in the Environment panel.
 
+```{r}
+head(my_county_land_join)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Create a new column called `rate` that contains the `Perc_lag` column subtracted from the `Perc_ag` column.
 
+```{r}
+my_county_land_join$rate <- 
+  my_county_land_join$Perc_ag - my_county_land_join$Perc_lag
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year` and `rate`. **\textcolor{orange}{(`r cont_count()`)}** Record the rate for 2017 on the shared Google sheet.
+
+```{r}
+print(my_county_land_join[ ,c("Year", "rate")])
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Are there any rates that stand out to you that we are not recording in our shared Google sheet? If so, make note of them in your report.
 
@@ -472,36 +462,135 @@ profits$profit[5] - profits$profit[1]
 profits$profit[5] - profits$profit[4]
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ag_sales_ID_1997-2017.csv` and `ag_expenses_ID_1997-2017.csv`. These datasets have information about total agricultural sales and expenses, respectively, for 1997, 2002, 2007, 2012, and 2017. **\textcolor{orange}{(`r cont_count()`)}** Subset each data frame to your county. **\textcolor{orange}{(`r cont_count()`)}** Preview the data by printing the `head` of the columns `Year`, `Data.Item`, `Domain.Category`, and `Value` in each data frame. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ag_sales_ID_1997-2017.csv` and `ag_expenses_ID_1997-2017.csv`. These datasets have information about total agricultural sales and expenses, respectively, for 1997, 2002, 2007, 2012, and 2017. 
+
+```{r}
+sales <- read.csv("data/ag_sales_ID_1997-2017.csv")
+expenses <- read.csv("data/ag_expenses_ID_1997-2017.csv")
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Subset each data frame to your county.
+
+```{r}
+sales <- subset(sales, County == "BEAR LAKE")
+expenses <- subset(expenses, County == "BEAR LAKE")
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Preview the data by printing the `head` of the columns `Year`, `Data.Item`, `Domain.Category`, and `Value` in each data frame. For more clarity, your can click the subset in the Environment tab to display the whole data frame.
+
+```{r}
+head(sales[ ,c("Year", "Data.Item", "Domain.Category", "Value")])
+head(expenses[ ,c("Year", "Data.Item", "Domain.Category", "Value")])
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` columns. If the data type is `"character"`, use `as.numeric`, as well as `str_remove_all` if necessary, to convert the `Value` columns to numbers in both data frames.
 
+```{r}
+#| warning: false
+
+class(sales$Value)
+
+sales$Value <- str_remove_all(sales$Value, ",")
+sales$Value <- as.numeric(sales$Value)
+
+class(sales$Value)
+
+class(expenses$Value)
+
+expenses$Value <- str_remove_all(expenses$Value, ",")
+expenses$Value <- as.numeric(expenses$Value)
+
+class(expenses$Value)
+```
+
 **\textcolor{orange}{(`r cont_count()`)}** Find the sum of sales by year for your county. You can use `aggregate` or `summarise`. **\textcolor{orange}{(`r cont_count()`)}** Do the same for expenses.
+
+```{r}
+# with summarise
+sales_by_year <- summarise(sales, 
+                           .by=Year, 
+                           Value = sum(Value, na.rm=TRUE))
+expenses_by_year <- summarise(expenses, 
+                              .by=Year, 
+                              Value = sum(Value, na.rm=TRUE))
+
+# with aggregate
+sales_by_year <- aggregate(Value ~ Year, data = sales, FUN = sum)
+expenses_by_year <- aggregate(Value ~ Year, data = expenses, FUN = sum)
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Use `full_join` to join your sales and expenses subsets. Make sure to use suffixes that make sense to you. **\textcolor{orange}{(`r cont_count()`)}** Print the result.
 
+```{r}
+profits <- full_join(sales_by_year, 
+                     expenses_by_year, 
+                     by="Year", 
+                     suffix=c("_sales", "_expenses"))
+
+print(profits)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** If your data frame is not arranged with 1997 in row 1 to 2017 in the last row, use the code in step (`r arrange_step`) to organize the rows of your data by `Year`.
+
+```{r}
+profits <- arrange(profits, Year)
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Subtract the expenses column from the sales column and save the result in a new column called `profit`.
 
+```{r}
+profits$profit <- profits$Value_sales - profits$Value_expenses
+```
+
+
 **\textcolor{orange}{(Optional: `r i`.1)}** Use `plot` to visualize profits over time. Make note of anything that catches your eye about this graph.
 
+```{r}
+plot(profits$Year, profits$profit, type="l")
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Subtract profits in 1997 from profits in 2017 to find total change in profits from 1997 to 2017. Record the value in the shared data sheet.
+
+```{r}
+profits[5, "profit"] - profits[1, "profit"]
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new column called `profits_lagged` that contains the values of the column `profit` shifted down one cell.
 
 ```{r}
-#| eval: false
-
-_______$______ <- lag(_______$______,
-                      n = __)
+profits$lagged <- lag(profits$profit, n=1)
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Check the results of this code by printing the `head` of your data frame or clicking the data frame in the Environment panel.
 
+```{r}
+head(profits)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Create a new column called `rate` that contains the `profits_lagged` column subtracted from the `profit` column.
 
-**\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year` and `rate`. **\textcolor{orange}{(`r cont_count()`)}** Record the rate for 2017 on the shared Google sheet.
+```{r}
+profits$rate <- profits$profit - profits$lagged
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year` and `rate`.
+
+```{r}
+print(profits[ ,c("Year", "rate")])
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Record the rate for 2017 on the shared Google sheet.
 
 **\textcolor{orange}{(`r cont_count()`)}** Are there any rates that stand out to you that we are not recording in our shared Google sheet? If so, make note of them in your report.
 
