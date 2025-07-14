@@ -1,5 +1,5 @@
 ---
-title: "Demographic Data"
+title: "Demographic Data - Answer Key"
 format: pdf
 ---
 
@@ -38,28 +38,24 @@ i=1
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ID_employment.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 2 to inspect the data.
 
 ```{r}
-#| include: false
-
-library(tidycensus)
-library(dplyr)
-library(stringr)
-
-readRenviron("../.Renviron")
-census_api_key(Sys.getenv("CENSUS_API_KEY"))
-
 emply <- read.csv("data/ID_employment.csv")
-my_county_employ <- subset(emply, NAME == "Bear Lake County, Idaho")
+
+head(emply)
+summary(emply)
 ```
 
 This is data from the American Community Survey for the year 2017. It has information on the gender and employment sector of residents in each county, but this information is contained in codes in the variable column. The meanings of these codes are stored in `ID_employment_codes.csv` in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data). The `moe` column stands for "margin of error" -- an important estimate of uncertainty. However, we will not be using it for these case studies.
 
 **\textcolor{orange}{(`r cont_count()`)}** Filter the employment data to your county.
 
+```{r}
+my_county_employ <- subset(emply, NAME == "Bear Lake County, Idaho")
+```
+
+
 To calculate percentages, we also need the total population of your county. **\textcolor{orange}{(`r cont_count()`)}** Refer to the shared Google sheet and save the value you previously found for total population in a new object in this report.
 
 ```{r}
-#| include: false
-
 total_population <- 5942
 ```
 
@@ -73,40 +69,65 @@ To make a table, use the website [https://www.tablesgenerator.com/markdown_table
 
 | Sector | Employment Category  |  Codes |
 |---|---|---|
-| Agriculture | Agriculture, forestry, fishing and hunting  | C24030_004, C?????_??? |
-| Manufacturing/Warehousing | Manufacturing  | 2 codes |
-| Manufacturing/Warehousing | Transportation and warehousing  | 2 codes |
-| Hospitality | Arts, entertainment, and recreation, and accommodation and food services  | 2 codes  |
-| Technology | Information  | 2 codes  |
-| Technology | Professional, scientific, and technical services  | 2 codes  |
+| Agriculture | Agriculture, forestry, fishing and hunting  | C24030_004, **C24030_031** |
+| Manufacturing/Warehousing | Manufacturing  | **C24030_007**, **C24030_034** |
+| Manufacturing/Warehousing | Transportation and warehousing  | **C24030_011**, **C24030_038** |
+| Hospitality | Arts, entertainment, and recreation, and accommodation and food services  | **C24030_024**, **C24030_051**  |
+| Technology | Information  | **C24030_013**, **C24030_040**  |
+| Technology | Professional, scientific, and technical services  | **C24030_018**, **C24030_045**  |
 
 Next, we will use four `subset` operations to find the number of people employed in each sector of interest. A comparison we can use in `subset` is `%in%`. When this logical expression is used, `subset` will keep any row with a value in the vector following `%in%`.
 
 **\textcolor{orange}{(`r cont_count()`)}** Modify the code below to filter to the agricultural codes.
 
 ```{r}
-#| eval: false
-
-my_county_ag_employed <- subset(my_county_employ,
-                                variable %in% c("C24030_004", "C?????_???"))
-```
-
-```{r}
-#| include: false
-
 my_county_ag_employed <- subset(my_county_employ,
                                 variable %in% c("C24030_004", "C24030_031"))
-agem <- sum(my_county_ag_employed$estimate)
-
-answer <- (agem/total_population)*100
 ```
-
 
 **\textcolor{orange}{(`r cont_count()`)}** Find the sum of the `estimate` column to calculate the total number of residents employed in the agricultural sector.
 
+```{r}
+ag_est <- sum(my_county_ag_employed$estimate)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Divide the number of residents employed in agriculture by the total population of your county. Round the percentage of residents employed in agriculture to one decimal and record it in the shared Google sheet.
 
+```{r}
+percent_ag <- (ag_est / total_population) * 100
+
+print(round(percent_ag, 1))
+``` 
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Repeat steps (`r i-3`) through (`r i-1`) for the other three sectors, recording your results.
+
+```{r}
+# manufacturing
+my_county_man_employed <- subset(my_county_employ,
+                                variable %in% c("C24030_007", "C24030_034",
+                                                "C24030_011", "C24030_038"))
+man_est <- sum(my_county_man_employed$estimate)
+percent_man <- (man_est / total_population) * 100
+print(round(percent_man, 1))
+
+# hospitality
+my_county_hosp_employed <- subset(my_county_employ,
+                                variable %in% c("C24030_024", "C24030_051"))
+hosp_est <- sum(my_county_hosp_employed$estimate)
+percent_hosp <- (hosp_est / total_population) * 100
+print(round(percent_hosp, 1))
+
+# technology
+my_county_tech_employed <- subset(my_county_employ,
+                                variable %in% c("C24030_013", "C24030_040",
+                                                "C24030_018", "C24030_045"))
+tech_est <- sum(my_county_tech_employed$estimate)
+percent_tech <- (tech_est / total_population) * 100
+print(round(percent_tech, 1))
+```
+
 
 ### Retirement
 
@@ -124,6 +145,13 @@ install.packages('tidycensus')
 
 **\textcolor{orange}{(`r cont_count()`)}** In your report, import the `tidycensus` library.
 
+```{r}
+#| warning: false
+
+library(tidycensus)
+```
+
+
 Websites that allow users to pull data want to make sure that someone isn't spamming them and clogging their servers. To prevent this, they require that users get an API key. **\textcolor{orange}{(`r cont_count()`)}** Request a census API key at [http://api.census.gov/data/key_signup.html](http://api.census.gov/data/key_signup.html). **\textcolor{orange}{(`r cont_count()`)}** Once you receive your key by email, import it into your report:
 
 ```{r}
@@ -131,6 +159,14 @@ Websites that allow users to pull data want to make sure that someone isn't spam
 
 census_api_key("YOUR API KEY GOES HERE")
 ```
+```{r}
+#| include: false
+
+# importing from .Renviron file
+readRenviron("../.Renviron")
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+```
+
 
 You should keep your API key private. While I have no security concerns with this particular project, it is good practice. **\textcolor{orange}{(`r cont_count()`)}** To hide your key from the PDF report but leave it active to run your code, modify the top of your code chunk from `{r}` to `{r, include=FALSE}`. This will run the code when your PDF is created, but it will not be printed.
 
@@ -146,6 +182,8 @@ Within the `tidycensus` library, we are going to use the `get_acs` function to g
 **\textcolor{orange}{(`r cont_count()`)}** Modify the code below to pull retiree data for your county. The `survey` argument specifies that we want estimates based on 5 years of data, since one year of data is not enough for estimates in small counties.
 
 ```{r}
+#| message: false
+
 my_county_retire <- get_acs(geography = "county",
                             state = "ID",
                             county = "Bear Lake",
@@ -156,7 +194,21 @@ my_county_retire <- get_acs(geography = "county",
                                           "B23001_087", "B23001_173"))
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Calculate the sum of all retirees in your county. **\textcolor{orange}{(`r cont_count()`)}** Calculate the percent of county residents who are retirees over 65, round to one decimal place, and record in the shared Google sheet. 
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the sum of all retirees in your county.
+
+```{r}
+num_retired <- sum(my_county_retire$estimate)
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Calculate the percent of county residents who are retirees over 65, round to one decimal place, and record in the shared Google sheet. 
+
+```{r}
+percent_retired <- (num_retired / total_population) * 100
+
+print(round(percent_retired, 1))
+```
+
 
 If you want to calculate other metrics from this table, you can find all the codes at [https://api.census.gov/data/2009/acs/acs5/groups/B23001.html](https://api.census.gov/data/2009/acs/acs5/groups/B23001.html).
 
@@ -173,9 +225,8 @@ In `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`, we have information 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `ID_county-to-county- 2013-2017-ins-outs-nets-gross.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `colnames` to inspect the data.
 
 ```{r}
-#| include: false
-
 migr <- read.csv("data/ID_county-to-county-2013-2017-ins-outs-nets-gross.csv")
+
 colnames(migr)
 ```
 
@@ -193,6 +244,11 @@ migration_columns <-
 
 **\textcolor{orange}{(`r cont_count()`)}** Print `migration_columns`. 
 
+```{r}
+print(migration_columns)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** We only need the first 16 column names. Use `colnames` to get the column names we imported without the extra data and brackets to extract the first 16 entries.
 
 ```{r}
@@ -201,11 +257,14 @@ migration_column_names <- colnames(migration_columns)[1:16]
 
 **\textcolor{orange}{(`r cont_count()`)}** Print `migration_column_names` to check the result. Don't worry about the columns with names like `X`, `X.1`, etc. Those are margin of error columns and will not be used for this analysis.
 
+```{r}
+print(migration_column_names)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from ID_county-to-county-2013-2017-ins-outs-nets-gross.csv again. This time, use the arguments `skip=3, header=FALSE` to only read in the data.
 
 ```{r}
-#| include: false
-
 migration <- read.csv("data/ID_county-to-county-2013-2017-ins-outs-nets-gross.csv",
            skip = 3, header=FALSE)
 ```
@@ -213,8 +272,6 @@ migration <- read.csv("data/ID_county-to-county-2013-2017-ins-outs-nets-gross.cs
 **\textcolor{orange}{(`r cont_count()`)}** Use `data_frame[, 1:16]` to get the first 16 columns of data and remove all the empty columns. Save this data frame in a new object.
 
 ```{r}
-#| include: false
-
 migration <- migration[, 1:16]
 ```
 
@@ -227,11 +284,14 @@ colnames(migration) <- migration_column_names
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the `head` of the migration data to check that the data has column names.
 
+```{r}
+head(migration)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Now that the data is formatted correctly, `subset` the dataset to rows where the column `County.Name.of.Geography.A` is equal to your county.
 
 ```{r}
-#| include: false
-
 my_county_migration <- subset(migration, County.Name.of.Geography.A == "Bear Lake County")
 ```
 
@@ -240,42 +300,56 @@ my_county_migration <- subset(migration, County.Name.of.Geography.A == "Bear Lak
 **\textcolor{orange}{(`r cont_count()`)}** Check the `class` of the columns `Flow.from.Geography.B.to.Geography.A` and `Counterflow.from.Geography.A.to.Geography.B1`. If the data type is `"character"`, use `str_remove_all` and `as.numeric` to remove commas and change the data type to numeric.
 
 ```{r}
-#| include: false
+library(stringr)
 
-my_county_migration <- my_county_migration %>%
-    mutate(Flow.from.Geography.B.to.Geography.A = as.numeric(str_remove_all(Flow.from.Geography.B.to.Geography.A, ",")),
-         Counterflow.from.Geography.A.to.Geography.B1 = as.numeric(str_remove_all(Counterflow.from.Geography.A.to.Geography.B1, ",")))
+class(my_county_migration$Flow.from.Geography.B.to.Geography.A)
+class(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1)
+
+my_county_migration$Flow.from.Geography.B.to.Geography.A <- 
+  str_remove_all(string = my_county_migration$Flow.from.Geography.B.to.Geography.A,
+                 pattern = ",")
+my_county_migration$Flow.from.Geography.B.to.Geography.A <- 
+  as.numeric(my_county_migration$Flow.from.Geography.B.to.Geography.A)
+
+my_county_migration$Counterflow.from.Geography.A.to.Geography.B1 <- 
+  str_remove_all(string = my_county_migration$Counterflow.from.Geography.A.to.Geography.B1,
+                 pattern = ",")
+my_county_migration$Counterflow.from.Geography.A.to.Geography.B1 <- 
+  as.numeric(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1)
+
+class(my_county_migration$Flow.from.Geography.B.to.Geography.A)
+class(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1)
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved to your county between 2013-2017 (hint: use one of the columns from step (`r i-1`) in a function that will add all the values together). Save this value in an object called `NumEntering`.
 
+```{r}
+NumEntering <- sum(my_county_migration$Flow.from.Geography.B.to.Geography.A,
+                   na.rm = TRUE)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Calculate the number of people that moved out of your county between 2013-2017 (hint: use the other column from step (`r i-2`)). Save this value in an object called `NumLeaving`.
 
 ```{r}
-#| include: false
-
-NumEntering <- sum(my_county_migration$Flow.from.Geography.B.to.Geography.A, na.rm=TRUE)
-NumLeaving <- sum(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1, na.rm=TRUE)
+NumLeaving <- sum(my_county_migration$Counterflow.from.Geography.A.to.Geography.B1, 
+                  na.rm = TRUE)
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Print `NumEntering` and `NumLeaving` to check your work.
+
+```{r}
+print(NumEntering)
+print(NumLeaving)
+```
+
 
 We have two out of the three pieces of data needed to calculate net migration. The last piece of information we need is the total population in 2015 (the middle of the time period). We are going to pull this number from the US Census. 
 
 **\textcolor{orange}{(`r cont_count()`)}** Modify the code below to save the total population in your county for the year 2015. The variable code for total population is B01001_001.
 
 ```{r}
-#| eval: false
-
-my_county_population_2015 <- get_acs(geography = "______",
-                                     state = "__",
-                                     county = "_________",
-                                     year = 2015,
-                                     survey = "acs5",
-                                     variables = "_______")
-```
-```{r}
-#| include: false
+#| message: false
 
 my_county_population_2015 <- get_acs(geography = "county",
                                      state = "ID",
@@ -288,8 +362,6 @@ my_county_population_2015 <- get_acs(geography = "county",
 **\textcolor{orange}{(`r cont_count()`)}** Save just the `estimate` column in an object called `total_population_2015`. Print the result to check your work.
 
 ```{r}
-#| include: false
-
 total_population_2015 <- my_county_population_2015$estimate
 ```
 
@@ -298,12 +370,15 @@ total_population_2015 <- my_county_population_2015$estimate
 \begin{math} NetMigration  = \frac{NumEntering - NumLeaving}{totalpopulation2015} \cdot 1000 \end{math}
 
 ```{r}
-#| include: false
-
-net_migration <- (NumEntering-NumLeaving)/total_population_2015 * 1000
+net_migration <- (NumEntering - NumLeaving) / total_population_2015 * 1000
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Round the net migration rate you calculated to the ones place (no decimal points) and print the net migration you calculated. If the number is positive, this is the amount of people your county is growing by per 1000 people. If it is negative, that is how fast your county is shrinking per 1000 people.
+
+```{r}
+round(net_migration, 0)
+```
+
 
 For example, the net migration rate for Bear Lake County is -23 per 1,000 people. This means that for every 1,000 people in Bear Lake County in 2013, 23 people left by 2017. The population of Bear Lake County is shrinking.
 
