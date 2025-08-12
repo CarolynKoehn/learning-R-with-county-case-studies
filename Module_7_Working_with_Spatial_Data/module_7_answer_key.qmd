@@ -1,5 +1,5 @@
 ---
-title: "Working with Spatial Data"
+title: "Working with Spatial Data - Answer Key"
 format: pdf
 ---
 
@@ -47,27 +47,27 @@ If you are interested in using R for spatial data beyond this project, I encoura
 
 ### Vector Data in sf
 
-```{r}
-#| include: false
-
-library(sf)
-
-nc <- st_read(system.file("shape/nc.shp", package="sf"), quiet=TRUE)
-```
-
 For this project, we can think of vector data as a polygon or a set of polygons. To get a feel for how this data is structured, we will use a built-in dataset from the `sf` package.
 
 **\textcolor{orange}{(`r cont_count()`)}** Install the `sf` package with `install.packages` in the Console. **\textcolor{orange}{(`r cont_count()`)}** Create a code chunk and read in the `sf` package using `library`.
 
+```{r}
+#| message: false
+
+library(sf)
+```
+
 **\textcolor{orange}{(`r cont_count()`)}** Create a vector data object called `nc` and read in the built-in data using the function `st_read`. This data provides information about the counties of North Carolina. We use `system.file` because this is a dataset that comes downloaded with the `sf` package.
 
 ```{r}
-#| eval: false
-
 nc <- st_read(system.file("shape/nc.shp", package="sf"))
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the `head` of `nc`.
+
+```{r}
+head(nc)
+```
 
 You should notice that `sf` objects are very similar to data frames, and we can use the same data cleaning techniques we used in other modules with this type of data. 
 
@@ -102,7 +102,7 @@ While vector data stores data about each shape, raster data stores data in pixel
 The package we use for raster data is called `terra`. **\textcolor{orange}{(`r cont_count()`)}** Install the `terra` package with `install.packages` in the Console. **\textcolor{orange}{(`r cont_count()`)}** Create a code chunk and read in the `terra` package using `library`.
 
 ```{r}
-#| include: false
+#| message: false
 
 library(terra)
 ```
@@ -143,6 +143,14 @@ elev_5070 <- project(elev, "epsg:5070")
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot the old objects (`nc`, `elev`) and the re-projected objects (`nc_5070`, `elev_5070`) to see what changed.
 
+```{r}
+plot(st_geometry(nc))
+plot(st_geometry(nc_5070))
+
+plot(elev)
+plot(elev_5070)
+```
+
 Notice that Luxembourg looks very different! EPSG 5070 is built for the United States, so it severely warps areas that are on a different side of the world.
 
 **\textcolor{orange}{(`r cont_count()`)}** Check that the CRS changed to EPSG 5070 with the code below.
@@ -161,19 +169,16 @@ Just like we made subsets in the last modules to narrow down the data to one cou
 
 **\textcolor{orange}{(`r cont_count()`)}** Install the `tigris` package in the Console. **\textcolor{orange}{(`r cont_count()`)}** Read the `tigris` library into your Quarto document.
 
+```{r}
+#| message: false
+
+library(tigris)
+```
+
 **\textcolor{orange}{(`r cont_count()`)}** Get a vector of all the counties in Idaho with the code below:
 
 ```{r}
-#| eval: false
-
-library(tigris)
-
-idaho <- counties(state = "ID")
-```
-```{r}
-#| include: false
-
-library(tigris)
+#| message: false
 
 idaho <- counties(state = "ID", progress_bar = FALSE)
 ```
@@ -181,26 +186,32 @@ idaho <- counties(state = "ID", progress_bar = FALSE)
 **\textcolor{orange}{(`r cont_count()`)}** Plot the `idaho` object (refer to step (`r sf_plot`) if needed).
 
 ```{r}
-#| eval: false
-
-____(st_geometry(_____))
+plot(st_geometry(idaho))
 ```
 
-**\textcolor{orange}{(`r cont_count()`)}** Since vector data is a data frame, use `head` and/or `colnames` to find the column that holds the county names. **\textcolor{orange}{(`r cont_count()`)}** Create a `subset` of `idaho` where that column matches your county. This should create a data frame with one row.
+**\textcolor{orange}{(`r cont_count()`)}** Since vector data is a data frame, use `head` and/or `colnames` to find the column that holds the county names. 
 
 ```{r}
-#| eval: false
+head(idaho)
+```
 
-bear_lake <- # subset of idaho that corresponds to Bear Lake County
+**\textcolor{orange}{(`r cont_count()`)}** Create a `subset` of `idaho` where that column matches your county. This should create a data frame with one row.
+
+```{r}
+bear_lake <- subset(idaho, NAME == "Bear Lake")
 ```
 ```{r}
 #| include: false
 
-bear_lake <- subset(idaho, NAME == "Bear Lake")
 county_object <- i
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot your county object (hint: refer to step `r i-3`).
+
+```{r}
+plot(st_geometry(bear_lake))
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Download raster data for land value from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/5f05de13db1a10cda6b3de3b465373d0aab7871e/Module_7_Working_with_Spatial_Data/data) 
 (fair_market_land_value_Idaho_2020.tif) into your `data` folder.
@@ -213,9 +224,17 @@ land_value <- rast("data/fair_market_land_value_Idaho_2020.tif")
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot the raster.
 
+```{r}
+plot(land_value)
+```
+
 This raster shows an estimate of the fair market value (land cost) in the natural log of US dollars per hectare (more information is available in [Nolte, 2020](https://doi.org/10.1073/pnas.2012865117)). We will use it to get an approximation of each county's average land cost by cropping to a county, transforming the data, and finding the mean pixel value.
 
 **\textcolor{orange}{(`r cont_count()`)}** Check the CRS (hint: step `r check_crs`).
+
+```{r}
+st_crs(land_value)$epsg
+```
 
 There are a few steps needed to crop a raster with a polygon in R:
 
@@ -227,11 +246,19 @@ There are a few steps needed to crop a raster with a polygon in R:
 **\textcolor{orange}{(`r cont_count()`)}** Check the CRS of your county polygon object created in step `r county_object`. If the CRS doesn't match the CRS of your raster, use `st_transform` to re-project it. You can use the `st_crs` of the raster as an input for `st_transform`:
 
 ```{r}
+st_crs(bear_lake)$epsg
+
 bear_lake_proj <- st_transform(bear_lake, 
                                crs = st_crs(land_value))
+
+st_crs(bear_lake_proj)$epsg
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot the `st_geometry` of your projected county to check that it looks right.
+
+```{r}
+plot(st_geometry(bear_lake_proj))
+```
 
 **\textcolor{orange}{(`r cont_count()`)}** Use the `crop` function with the Idaho land use raster and your county polygon.
 
@@ -241,6 +268,11 @@ land_value_crop <- crop(x = land_value,
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot the cropped raster.
+
+```{r}
+plot(land_value_crop)
+```
+
 
 Notice that it has just cropped to a box, and not the actual shape of the county. The `crop` function crops a raster to a box that contains the polygon, not the exact shape. It's an important first step, but to do county-specific statistics, we need to crop to the exact shape of the county. To do that, we will use the `mask` function.
 
@@ -252,6 +284,11 @@ land_value_mask <- mask(x = land_value_crop,
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Plot your masked raster. Notice that the boundaries of the raster match those of your county.
+
+```{r}
+plot(land_value_mask)
+```
+
 
 Under the hood, you can think of a raster as a giant table of numbers, and every pixel one of those numbers, but with extra spatial information attached. We plot these numbers as colors, but we can also do math with these numbers. 
 
@@ -272,7 +309,19 @@ avg_land_value <- mean(values(land_value_mask_trans), na.rm=TRUE)
 
 **\textcolor{orange}{(`r cont_count()`)}** Round the average land value to zero decimal places and add the result to the shared Google Sheet.
 
+```{r}
+round(avg_land_value, 0)
+```
+
+
 **\textcolor{orange}{(Bonus: `r i`.1)}** Calculate the `median()` land value and `quantile()` information as well and include it in this report. It would be good to check if there are high land values skewing the mean and if there are other metrics we should record. Don't forget to use the `values()` function.
+
+```{r}
+median(values(land_value_mask_trans), na.rm=TRUE)
+
+quantile(values(land_value_mask_trans), na.rm=TRUE)
+```
+
 
 ### Finishing up
 
