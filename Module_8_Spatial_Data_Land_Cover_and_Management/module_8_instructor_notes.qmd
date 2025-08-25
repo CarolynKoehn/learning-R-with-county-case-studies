@@ -1,0 +1,79 @@
+---
+title: "Module 8 Instructor Notes"
+author: "Carolyn Koehn"
+format: pdf
+---
+
+# Data
+
+## PVR
+
+The American Farmland Trust has created a raster of agricultural land quality that takes three metrics into account: productivity, versatility, and resilience [PVR] (more information [here](https://csp-fut.appspot.com/downloads/AFT_FUT_PVR_Fact_Sheet.pdf)). They combined these metrics into a unitless measure that varies from 0-1, with 1 being the highest agricultural land quality.
+
+You will need to request this data from the American Farmland Trust using their [Farms Under Threat Spatial Data Request Form](https://survey123.arcgis.com/share/3f8d2e46cec64288b53d235fa7cf7d40). The data here is the PVR continuum for 2016 at 120m resolution. 
+
+The preprocessing code I used before students used these data are below:
+
+```{r}
+#| eval: false
+
+library(dplyr)
+library(sf)
+library(terra)
+
+idaho <- tigris::states() %>%
+  filter(NAME == "Idaho")
+
+pvr <- rast("data/AFT_Data/productivity_versatility_resiliency_2016_conus_120m.tif")
+
+pvr_crop <- crop(pvr, st_transform(idaho, crs(pvr)), mask=TRUE)
+
+writeRaster(pvr_crop, "data/productivity_versatility_resiliency_2016_ID.tif")
+```
+
+## Land Management
+
+The BLM Surface Management Agency data is available for download at https://gbp-blm-egis.hub.arcgis.com/pages/idaho (search for the BLM ID Surface Management Agency dataset). The data can also be downloaded in R with the following code:
+
+```{r}
+#| eval: false
+
+id_lt <- st_read("https://gis.blm.gov/idarcgis/rest/services/realty/
+                 BLM_ID_Surface_Management_Agency/FeatureServer/0/
+                 query?where=1%3D1&outFields=MGMT_AGNCY,AGNCY_NAME&outSR=4326&f=json",
+                 quiet=TRUE)
+```
+
+## Land Use Land Cover
+
+The American Farmland Trust also created a land use/land cover dataset for agricultural land cover categories. You will need to request this data from the American Farmland Trust using their [Farms Under Threat Spatial Data Request Form](https://survey123.arcgis.com/share/3f8d2e46cec64288b53d235fa7cf7d40). The data used here is the Land cover/use data for 2016 at 30m resolution.
+
+An alternative to this dataset is the publicly available NLCD data available every year at 30m resolution. The AFT data is built on the NLCD data, which has more general land cover/use categories.
+
+The AFT land cover/use data was pre-processed using the following code:
+
+```{r}
+#| eval: false
+
+library(dplyr)
+library(sf)
+library(terra)
+
+idaho <- tigris::states() %>%
+  filter(NAME == "Idaho") %>%
+  st_transform(crs=4326)
+
+landuse <- rast("data/land_cover_and_use_2016_CONUS_30m.tif")
+
+landuse_crop <- crop(landuse, idaho)
+landuse_mask <- mask(landuse_crop, idaho)
+
+writeRaster(landuse_mask, "data/land_cover_and_use_2016_Idaho.tif")
+```
+
+
+
+# Teaching notes
+
+- You will need to request and pre-process the datasets from American Farmland Trust, as AFT requests that each user request their own data download. I shared these datasets with my students in a Google Drive folder after taking the pre-processing steps described above. 
+- I had students email me their finished PDFs. If you have a different way of collecting assignments, you will want to change the instructions at the end of the module to reflect that.
