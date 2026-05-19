@@ -31,7 +31,7 @@ i=1
 
 **\textcolor{orange}{(`r i`)}** Open RStudio and your project file. **\textcolor{orange}{(`r cont_count()`)}** Create a new Quarto file.
 
-**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data): `ID_employment.csv` and `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`.
+**\textcolor{orange}{(`r cont_count()`)}** Download the following `.csv` files into your `data` folder from this [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/main/Module_5_Demographic_Data/data): `ID_employment.csv` and `ID_county-to-county-2013-2017-ins-outs-nets-gross.csv`.
 
 ### Employment metrics
 
@@ -51,7 +51,7 @@ emply <- read.csv("data/ID_employment.csv")
 my_county_employ <- subset(emply, NAME == "Bear Lake County, Idaho")
 ```
 
-This is data from the American Community Survey for the year 2017. It has information on the gender and employment sector of residents in each county, but this information is contained in codes in the variable column. The meanings of these codes are stored in `ID_employment_codes.csv` in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data). The `moe` column stands for "margin of error" -- an important estimate of uncertainty. However, we will not be using it for these case studies.
+This is data from the American Community Survey for the year 2017. It has information on the gender and employment sector of residents in each county, but this information is contained in codes in the variable column. The meanings of these codes are stored in `ID_employment_codes.csv` in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/main/Module_5_Demographic_Data/data). The `moe` column stands for "margin of error" -- an important estimate of uncertainty. However, we will not be using it for these case studies.
 
 **\textcolor{orange}{(`r cont_count()`)}** Filter the employment data to your county.
 
@@ -65,7 +65,7 @@ total_population <- 5942
 
 We need to calculate the percent of county residents employed in (1) agriculture, (2) manufacturing/warehousing, (3) hospitality, and (4) technology. To do this, we need the corresponding codes.
 
-**\textcolor{orange}{(`r cont_count()`)}** Look at the `ID_employment_codes.csv` file in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/585a9d2a682de9f0806760d337e7d85fce0d7e4c/Module_5_Demographic_Data/data).
+**\textcolor{orange}{(`r cont_count()`)}** Look at the `ID_employment_codes.csv` file in the [GitHub folder](https://github.com/CarolynKoehn/learning-R-with-county-case-studies/tree/main/Module_5_Demographic_Data/data).
 
 **\textcolor{orange}{(`r cont_count()`)}** Make a table of the codes that apply to each category in your report. Since codes refer to employment and gender, there will be at least two codes for each category.
 
