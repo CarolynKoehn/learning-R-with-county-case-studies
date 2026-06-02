@@ -4,6 +4,8 @@
 .Ruserdata
 .Renviron
 
-Module_8_Spatial_Data_Land_Cover_and_Management/data/RLTY_SMA_PUB_24K_POLY*
+Module_8_Spatial_Data_Land_Cover_Ownership_Quality/data/RLTY_SMA_PUB_24K_POLY*
+Module_8_Spatial_Data_Land_Cover_Ownership_Quality/data/*.tif
 
 Module_9_Integrating_Migration_Data/data/*.zip
+.positai

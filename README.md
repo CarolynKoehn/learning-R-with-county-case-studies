@@ -23,7 +23,7 @@ Objectives
 size, percentage of residents in agricultural producer households, and percent of acres
 used for agriculture in your case study county.
 
-## Module 3: Agricultural Statistics, Part 1
+## Module 3: Agricultural Statistics: Producers and Farms
 
 Objectives:
 1. Review percent calculations used in Module 2 to calculate statistics on producer gender
@@ -40,7 +40,7 @@ but merely a template for students who need to make figures with limited time.
 Objectives:
 1. Make comparison plots with `ggplot2`.
 
-## Module 4: Agricultural Statistics, Part 2
+## Module 4: Agricultural Statistics: Data Linking and Trends Through Time
 
 Objectives:
 1. Use subsets, joins, and calculations across rows to quantify 20-year change in farm size
@@ -59,7 +59,7 @@ American Community Survey data portal.
 3. Calculate employment metrics (percent residents employed in agriculture, manufacturing,
 hospitality, and technology), residents over retirement age, and net migration rate.
 
-## Module 6: Reproducible Data Retrieval: Pulling Data Directly into R
+## Module 6: Reproducible Data Retrieval: Connecting to the Cloud
 
 Objectives:
 1. Navigate the US Census API to locate variables of interest from the American Community Survey.
@@ -69,7 +69,7 @@ calculate a descriptive metric of interest.
 4. Use the `rnassqs` package to pull data from the Census of Agriculture and calculate a
 descriptive metric of interest.
 
-## Module 7: Working with Spatial Data
+## Module 7: Working with Spatial Data in R
 
 Objectives:
 1. Use the `sf` package to explore and visualize vector data.
@@ -78,14 +78,14 @@ Objectives:
 4. Use a shapefile to crop a raster.
 5. Calculate summary statistics for a raster.
 
-## Module 8: Spatial Data, Part 2
+## Module 8: Spatial Data: Land Cover, Ownership, and Quality
 
 Objectives:
 1. Use spatial summary statistics to calculate average agricultural quality.
 2. Crop vector data and calculate land management percentages.
 3. Use `freq` to calculate land cover percentages.
 
-## Module 9: Migration Data
+## Module 9: Integrating Migration Data
 
 Objectives:
 1. Calculate statistics for multiple counties at once using `summarise`.

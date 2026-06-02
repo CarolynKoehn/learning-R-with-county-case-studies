@@ -1,5 +1,5 @@
 ---
-title: "Agricultural Statistics: Part 1"
+title: "Agricultural Statistics: Producers and Farms -- Answer key"
 format: pdf
 ---
 
@@ -38,8 +38,6 @@ i=1
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `producers_race_2017_ID.csv`. **\textcolor{orange}{(`r cont_count()`)}** Use `head` and at least one other function from Module 2 to inspect the data.
 
 ```{r}
-#| include: false
-
 producers <- read.csv("data/producers_race_2017_ID.csv")
 head(producers)
 ```
@@ -47,9 +45,8 @@ head(producers)
 **\textcolor{orange}{(`r cont_count()`)}** Create a subset of this data for your county and print the columns `Year`, `County`, `Data.Item`, and `Value`. Your output should be similar to the output below.
 
 ```{r}
-#| echo: false
-
 my_county_producers <- subset(producers, County == "BEAR LAKE")
+
 my_county_producers[, c("Year", "County", "Data.Item", "Value")]
 ```
 
@@ -64,37 +61,34 @@ class(my_county_producers$Value)
 If the data type is `"integer"` or `"numeric"` you're good to go! We can do math with those types. **\textcolor{orange}{(`r cont_count()`)}** If the data type is `"character"`, use `as.numeric`, as well as `library(stringr)` and `str_remove_all` if necessary, to convert the `Value` column to numbers. You will need to overwrite the whole `Value` column to convert it. Notice how the syntax has changed slightly from Module 2 steps (21)-(26) -- we are working with a whole column (indicated by the `$`) rather than a single object.
 
 ```{r}
-#| eval: false
-
-library(stringr)
-
-my_county_producers$Value <- str_remove_all(string = my_county_producers$Value,
-                                        pattern = ",")
-
-my_county_producers$Value <- as.numeric(___________$_____)
-```
-
-```{r}
-#| include: false
-
 library(stringr)
 
 my_county_producers$Value <- str_remove_all(string = my_county_producers$Value,
                                         pattern = ",")
 
 my_county_producers$Value <- as.numeric(my_county_producers$Value)
+```
+```{r}
+#| include: false
 
 col_input <- i
 ```
 
+
 **\textcolor{orange}{(`r cont_count()`)}** Print the columns `Year`, `County`, `Data.Item`, and `Value` in your subset again to make sure the conversion to numbers worked. Your subset should look the same as the one you printed earlier, but all commas in the `Value` column should be removed.
+
+```{r}
+print(my_county_producers[ ,c("Year", "County", "Data.Item", "Value")])
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Save the value (a single number) for total number of producers in your county into a new object called `total_producers`. (Hint: Find the `subset` of your county subset in which `Data.Item` is equal to the label for the total number of producers. Then, save the `Value` column into a new object.) Print your object containing the total number of producers in your county.
 
 ```{r}
-#| include: false
+total_producers <- subset(my_county_producers, 
+                          Data.Item == "PRODUCERS, (ALL) - NUMBER OF PRODUCERS")
 
-total_producers <- subset(my_county_producers, Data.Item == "PRODUCERS, (ALL) - NUMBER OF PRODUCERS")$Value
+total_producers <- total_producers$Value
 ```
 
 For the next step, we're going to use a different kind of filter that generates `TRUE/FALSE` values like `==` does. In the `stringr` library, we will use the function `str_detect`. **\textcolor{orange}{(`r cont_count()`)}** If you haven't read in the `stringr` library yet with `library(stringr)`, do so now. **\textcolor{orange}{(`r cont_count()`)}** Use the code below to save the number of male producers into a new object. Make sure to include the space before `MALE`. Since `FEMALE` also includes the letters `MALE`, we're using a space to show `R` that there are no letters before the word `MALE`.
@@ -112,7 +106,41 @@ print(male_producers)
 
 **\textcolor{orange}{(`r cont_count()`)}** Calculate the percentage of producers that are male in your county using the `total_producers` and `male_producers` objects.
 
+```{r}
+percent_male <- male_producers / total_producers * 100
+
+print(percent_male)
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Use the same process in steps (`r i-2`)-(`r i-1`) to calculate the percentage of female producers and the percentage of producers of each race for your county.
+
+```{r}
+female_producers <- subset(my_county_producers, 
+                         str_detect(string = Data.Item,
+                                    pattern = "FEMALE"))
+female_producers <- female_producers$Value
+percent_female <- female_producers / total_producers * 100
+
+amin_producers <- subset(my_county_producers, 
+                         str_detect(string = Data.Item,
+                                    pattern = "AMERICAN INDIAN"))
+amin_producers <- amin_producers$Value
+percent_amin <- amin_producers / total_producers * 100
+
+hispanic_producers <- subset(my_county_producers, 
+                         str_detect(string = Data.Item,
+                                    pattern = "HISPANIC"))
+hispanic_producers <- hispanic_producers$Value
+percent_hispanic <- hispanic_producers / total_producers * 100
+
+white_producers <- subset(my_county_producers, 
+                         str_detect(string = Data.Item,
+                                    pattern = "WHITE"))
+white_producers <- white_producers$Value
+percent_white <- white_producers / total_producers * 100
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Add the producer demographics you calculated to the shared Google sheet. Some racial groups will not be listed on the Google sheet and not all groups may be present in your county. If there are no producers of a certain race for your county, add a 0 to that cell. If you have racial groups that don't have a column in the Google sheet, add those percentages together and add the total to the `Percent_producers_other` column.
 
@@ -123,8 +151,6 @@ One measure of high quality farmland is how many different types of food it can 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `commodities_ID_2017.csv`. This dataset contains information about the number of farms and acres that are growing each type of crop. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 2. 
 
 ```{r}
-#| include: false
-
 commodities <- read.csv("data/commodities_ID_2017.csv")
 ```
 
@@ -134,78 +160,81 @@ This file has a lot more information than we need from it currently. The most im
 **\textcolor{orange}{(`r cont_count()`)}** Subset the commodities data to your county and print the `Commodity` column.
 
 ```{r}
-#| include: false
-
 my_county_commodities <- subset(commodities, County == "BEAR LAKE")
 my_county_commodities$Commodity
 ```
 
 You will probably notice that there are some repeats. We can't just count the number of rows in the subset, we need the number of _unique_ commodities for your county. **\textcolor{orange}{(`r cont_count()`)}** Use the `unique` function to print the commodities your county produces with no repeats and save this list in an object with a name that makes sense to you. **\textcolor{orange}{(`r cont_count()`)}** Use that object as the argument for the `length` function to get the number of commodities your county produces. Add this number to the Google sheet.
 
-### Farm Tenure (Ownership status)
-
 ```{r}
-#| include: false
+unique_commodities <- unique(my_county_commodities$Commodity)
 
-# size <- read.csv("data/num_farms_area_tenure_1997_2017_ID.csv")
-# 
-# size_filt <- dplyr::filter(size, Domain.Category %in% unique(size[which(size$Year == 1997), "Domain.Category"]))
-# 
-# write.csv(size_filt, "data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
-
-size <- read.csv("data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
-
-bl_size <- subset(size, County == "BEAR LAKE" & Year == 2017)
-
-print(bl_size[,c("County", "Domain", "Domain.Category", "Value")])
-class(bl_size$Value)
-bl_size$Value <- as.numeric(str_remove_all(bl_size$Value, ","))
-
-total_farms <- subset(bl_size, Domain == "TOTAL")$Value
-
-my_county_tenure <- subset(bl_size, Domain == "TENURE")
-tenure <- aggregate(Value ~ Domain.Category, data = my_county_tenure, FUN = sum)
-tenure$perc <- tenure$Value / total_farms * 100
-# print(tenure[, c("Domain.Category", "perc", "label")])
-# round(tenure$perc, 1)
-
-area <- subset(bl_size, Domain == "AREA OPERATED")
-area$label <- NA
-area$label <- ifelse(test = str_detect(area$Domain.Category, "1,000"),
-                     yes = "Large farms",
-                     no = area$label)
-area$label <- ifelse(test = str_detect(area$Domain.Category, "50|180|500"),
-                     yes = "Mid-size farms",
-                     no = area$label)
-area$label <- ifelse(test = is.na(area$label),
-                     yes = "Small farms",
-                     no = area$label)
-totals <- aggregate(Value ~ label, data = area, FUN = sum)
-totals$perc <- totals$Value / total_farms * 100
-totals$perc <- round(totals$perc, 1)
-#totals
+print(length(unique_commodities))
 ```
+
+
+### Farm Tenure (Ownership status)
 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new code chunk and use `read.csv` to read in the data from `num_farms_`
 `areafiltered_tenure_1997_2017_ID.csv`. This dataset has information about the number of farms in different acreage categories and ownership categories, as well as the total number of farms for each county in the years 1997 and 2017. **\textcolor{orange}{(`r cont_count()`)}** Inspect the data with at least two functions from Module 2. 
 
+```{r}
+size <- read.csv("data/num_farms_areafiltered_tenure_1997_2017_ID.csv")
+
+# examples
+colnames(size)
+head(size[ ,c("Year", "County", "Data.Item", "Domain.Category", "Value")])
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Subset the farm operations data to your county _and_ to the year 2017. Print the `County`, `Domain`, `Domain.Category`, and `Value` columns.
+
+```{r}
+bear_lake_farms <- subset(size, County == "BEAR LAKE" & Year == 2017)
+
+print(bear_lake_farms[ ,c("County", "Domain", "Domain.Category", "Value")])
+```
+
 
 These data contain different kinds of information. The `Value` column shows the number of farms in each `Domain.Category`. We are going to filter out both farm ownership and farm size information from these data. 
 
 **\textcolor{orange}{(`r cont_count()`)}** Check the data type of the `Value` column using `class()`. If the data type is `"character"`, use `as.numeric`, as well as `str_remove_all` if necessary, to convert the `Value` column to numbers. (Hint: see steps `r col_input-1`-`r col_input`.)
 
 ```{r}
+class(bear_lake_farms$Value)
+
+bear_lake_farms$Value <- str_remove_all(bear_lake_farms$Value, ",")
+bear_lake_farms$Value <- as.numeric(bear_lake_farms$Value)
+
+class(bear_lake_farms$Value)
+```
+```{r}
 #| include: false
 
 size_data_ready <- i
 ```
 
+
 **\textcolor{orange}{(`r cont_count()`)}** Save the total number of farms in your county in an object called `total_farms` by retrieving the number in the `Value` column where `Domain` is equal to `TOTAL`. (Hint: use `subset`.)
+
+```{r}
+total_farms <- subset(bear_lake_farms, Domain == "TOTAL")
+total_farms <- total_farms$Value
+
+print(total_farms)
+```
+
 
 **\textcolor{orange}{(`r cont_count()`)}** Add the total number of farms for your county to the shared Google sheet.
 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new object and save a subset of the farm operations data where `Domain` is equal to `TENURE`. Print the `Domain` and `Domain.Category` columns of this subset to check that it worked.
+
+```{r}
+bear_lake_tenure <- subset(bear_lake_farms, Domain == "TENURE")
+
+print(bear_lake_tenure[ ,c("Domain", "Domain.Category")])
+```
+
 
 ```{r}
 #| include: false
@@ -222,7 +251,7 @@ The format of the `aggregate` function that we will use is is `aggregate(___ ~ _
 
 ```{r}
 my_county_tenure_agg <- aggregate(Value ~ Domain.Category,
-                                  data = my_county_tenure,
+                                  data = bear_lake_tenure,
                                   FUN = sum)
 
 print(my_county_tenure_agg)
@@ -243,16 +272,28 @@ create_percent_column_step <- i
 
 Notice how we can apply the same math equation to a whole column (`Value`) to create a new column with the answer to that equation in the correct rows. 
 
-**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `Percent_farms_rounded` with the percentage of farms in each category rounded to 1 decimal place. **\textcolor{orange}{(`r cont_count()`)}** Print the `my_county_tenure_agg` data frame and add the rounded values for each category to the Google sheet.
+**\textcolor{orange}{(`r cont_count()`)}** Create a new column called `Percent_farms_rounded` with the percentage of farms in each category rounded to 1 decimal place.
+
+```{r}
+my_county_tenure_agg$Percent_farms_rounded <- round(my_county_tenure_agg$Percent_farms, 1)
+```
+
+
+**\textcolor{orange}{(`r cont_count()`)}** Print the `my_county_tenure_agg` data frame and add the rounded values for each category to the Google sheet.
+
+```{r}
+print(my_county_tenure_agg)
+```
+
 
 ### Farm size
 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new object and use the data from step (`r size_data_ready`) to save a subset of the farm operations data where `Domain` is equal to `AREA OPERATED`. Print the `Domain` and `Domain.Category` columns of this subset to check that it worked.
 
 ```{r}
-#| include: false
+my_county_sizes <- subset(bear_lake_farms, Domain == "AREA OPERATED")
 
-my_county_sizes <- area
+print(my_county_sizes[ ,c("Domain", "Domain.Category")])
 ```
 
 
@@ -297,26 +338,19 @@ Another pattern we can see is that the small farm categories contain a decimal p
 my_county_sizes$label <- ifelse(test = 
                                   str_detect(string = my_county_sizes$Domain.Category,
                                              pattern = "\\."),
-                                yes = "Small farms",
-                                no = my_county_sizes$label)
+                                  yes = "Small farms",
+                                  no = my_county_sizes$label)
 ```
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the `Domain.Category` and `label` columns to check the result of this code.
 
+```{r}
+print(my_county_sizes[, c("Domain.Category", "label")])
+```
+
 **\textcolor{orange}{(`r cont_count()`)}** Finally, use `ifelse` to test if `label` still equals `NA`. If yes, then let `label` be "Mid-sized farms." If no, let `label` keep its current value.
 
 ```{r}
-#| eval: false
-
-_______$label <- ifelse(test = is.na(_______$_______),
-                                yes = "__________",
-                                __ = _______$_____)
-```
-
-
-```{r}
-#| include: false
-
 my_county_sizes$label <- ifelse(test = is.na(my_county_sizes$label),
                                 yes = "Mid-sized farms",
                                 no = my_county_sizes$label)
@@ -324,6 +358,10 @@ my_county_sizes$label <- ifelse(test = is.na(my_county_sizes$label),
 
 
 **\textcolor{orange}{(`r cont_count()`)}** Print the `Domain.Category` and `label` columns to check the result of this code.
+
+```{r}
+print(my_county_sizes[, c("Domain.Category", "label")])
+```
 
 **\textcolor{orange}{(`r cont_count()`)}** `aggregate` the `Value` column (number of farms) _by_ the `label` column. Use `sum` as your function.
 
@@ -335,7 +373,21 @@ my_county_sizes_agg <- aggregate(Value ~ label,
 
 **\textcolor{orange}{(`r cont_count()`)}** Create a new column with the percentage of farms in each size category (Hint: step (`r create_percent_column_step`)).
 
+```{r}
+my_county_sizes_agg$Percent_farms <- 
+  my_county_sizes_agg$Value / total_farms * 100
+```
+
+
 **\textcolor{orange}{(`r cont_count()`)}** Create another column with the percentage rounded to one decimal place. Print the data frame and add the rounded percentages to the shared Google sheet.
+
+```{r}
+my_county_sizes_agg$Percent_farms_rounded <- 
+  round(my_county_sizes_agg$Percent_farms, 1)
+
+print(my_county_sizes_agg)
+```
+
 
 ### Finishing up
 

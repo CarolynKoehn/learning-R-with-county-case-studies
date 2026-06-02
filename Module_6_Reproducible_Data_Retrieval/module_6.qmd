@@ -1,5 +1,5 @@
 ---
-title: "Reproducible Data Retrieval: Pulling Data Directly into R"
+title: "Reproducible Data Retrieval: Connecting to the Cloud"
 format: pdf
 ---
 
